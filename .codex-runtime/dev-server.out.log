@@ -1,0 +1,16 @@
+
+> cloud-island@0.1.0 dev
+> next dev
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.56.1:3000
+
+✓ Starting...
+✓ Ready in 12s
+○ Compiling / ...
+ GET / 200 in 4.8s (compile: 4.6s, render: 121ms)
+ GET / 200 in 76ms (compile: 8ms, render: 68ms)
+✓ Compiled in 48ms
+ GET / 200 in 25ms (compile: 3ms, render: 23ms)
+ GET / 200 in 73ms (compile: 8ms, render: 65ms)
