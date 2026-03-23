@@ -63,6 +63,7 @@ function CameraAnimator({
   const { camera } = useThree();
   const targetVec = useRef(new THREE.Vector3(0, 3, 0));
   const cameraTarget = useRef(new THREE.Vector3());
+  const previousTarget = useRef<[number, number, number] | null>(null);
   const animating = useRef(false);
 
   useFrame(() => {
@@ -92,16 +93,23 @@ function CameraAnimator({
 
   // Trigger animation when target changes
   useEffect(() => {
-    if (target) {
-      targetVec.current.set(target[0], target[1] + 3, target[2]);
-      cameraTarget.current.set(
-        target[0] + 20,
-        target[1] + 15,
-        target[2] + 20
-      );
-      animating.current = true;
-    }
-  }, [target]);
+
+    if (!enabled || !target) return;
+
+    const targetChanged =
+      !previousTarget.current ||
+      previousTarget.current[0] !== target[0] ||
+      previousTarget.current[1] !== target[1] ||
+      previousTarget.current[2] !== target[2];
+
+    previousTarget.current = [target[0], target[1], target[2]];
+
+    if (!targetChanged) return;
+
+    targetVec.current.set(target[0], target[1] + 3, target[2]);
+    cameraTarget.current.set(target[0] + 20, target[1] + 15, target[2] + 20);
+    animating.current = true;
+  }, [enabled, target]);
 
   return null;
 }
@@ -199,8 +207,124 @@ function ClickableIsland({
 
   return (
     <group position={island.position} onClick={handleClick}>
-      <IslandScene layout={island.layout} onCategoryClick={onCategoryClick} />
-      {selected && <IslandInfo island={island} />}
+      <IslandScene layout={island.layout} onCategoryClick={disabled ? undefined : onCategoryClick} />
+      {selected && !disabled && <IslandInfo island={island} />}
+    </group>
+  );
+}
+
+function Balloon({ balloonRef }: { balloonRef: React.RefObject<THREE.Group | null> }) {
+  return (
+    <group ref={balloonRef}>
+      <mesh position={[0, 3.2, 0]} scale={[1.06, 1.18, 1.06]}>
+        <sphereGeometry args={[2.7, 36, 36]} />
+        <meshStandardMaterial color="#ffffff" emissive="#ffffff" emissiveIntensity={0.42} roughness={0.6} metalness={0.0} />
+      </mesh>
+      <mesh position={[0, 3.2, 0]} scale={[1.01, 1.12, 1.01]}>
+        <sphereGeometry args={[2.72, 36, 36]} />
+        <meshStandardMaterial color="#ffffff" transparent opacity={0.16} wireframe />
+      </mesh>
+      <Html position={[0, 3.15, 2.86]} center transform sprite distanceFactor={10.5}>
+        <svg
+          width="126"
+          height="68"
+          viewBox="0 0 252 136"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-label="AWS logo"
+          className="drop-shadow-[0_8px_18px_rgba(0,0,0,0.22)]"
+        >
+          <text
+            x="126"
+            y="68"
+            textAnchor="middle"
+            fontSize="58"
+            fontFamily="Arial, Helvetica, sans-serif"
+            fill="#232F3E"
+          >
+            aws
+          </text>
+          <path
+            d="M72 92C95 109 145 110 186 93"
+            stroke="#FF9900"
+            strokeWidth="10"
+            fill="none"
+            strokeLinecap="round"
+          />
+          <path
+            d="M179 81L197 92L183 109"
+            stroke="#FF9900"
+            strokeWidth="10"
+            fill="none"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </Html>
+      <group position={[0, 1.68, 0]}>
+        {[
+          [0.78, 0.32],
+          [0.52, 0.64],
+          [0.18, 0.82],
+          [-0.18, 0.82],
+          [-0.52, 0.64],
+          [-0.78, 0.32],
+          [0.78, -0.32],
+          [0.52, -0.64],
+          [0.18, -0.82],
+          [-0.18, -0.82],
+          [-0.52, -0.64],
+          [-0.78, -0.32],
+        ].map(([x, z], index) => (
+          <mesh key={index} position={[x, -1.35, z]} rotation={[0.08, 0, 0]}>
+            <cylinderGeometry args={[0.018, 0.018, 2.75, 6]} />
+            <meshStandardMaterial color="#c8c3bb" />
+          </mesh>
+        ))}
+      </group>
+      <group position={[0, -0.2, 0]}>
+        <mesh position={[0, -0.15, 0]}>
+          <cylinderGeometry args={[1.02, 1.08, 0.78, 18, 1, true]} />
+          <meshStandardMaterial color="#2f3137" roughness={0.9} metalness={0.08} />
+        </mesh>
+        <mesh position={[0, 0.22, 0]}>
+          <torusGeometry args={[1.03, 0.06, 12, 32]} />
+          <meshStandardMaterial color="#6b7280" metalness={0.35} roughness={0.45} />
+        </mesh>
+        <mesh position={[0, -0.54, 0]}>
+          <torusGeometry args={[1.0, 0.05, 12, 32]} />
+          <meshStandardMaterial color="#1f2937" metalness={0.25} roughness={0.55} />
+        </mesh>
+        <mesh position={[0, -0.12, 0]}>
+          <boxGeometry args={[1.75, 0.18, 0.08]} />
+          <meshStandardMaterial color="#4b5563" />
+        </mesh>
+        <mesh position={[0, -0.12, 0]} rotation={[0, Math.PI / 2, 0]}>
+          <boxGeometry args={[1.75, 0.18, 0.08]} />
+          <meshStandardMaterial color="#4b5563" />
+        </mesh>
+        <mesh position={[0, -0.48, 0]} rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.9, 0.9, 0.08, 24]} />
+          <meshStandardMaterial color="#3b3f46" roughness={0.78} metalness={0.12} />
+        </mesh>
+      </group>
+      <group position={[0, 0.12, 0.18]}>
+        <mesh position={[0, 0.34, 0]}>
+          <sphereGeometry args={[0.2, 16, 16]} />
+          <meshStandardMaterial color="#f3d2b6" roughness={0.95} />
+        </mesh>
+        <mesh position={[0, -0.04, 0]}>
+          <capsuleGeometry args={[0.17, 0.48, 4, 8]} />
+          <meshStandardMaterial color="#2563eb" />
+        </mesh>
+        <mesh position={[0.14, 0.0, 0.1]} rotation={[0, 0, -0.48]}>
+          <capsuleGeometry args={[0.045, 0.3, 4, 8]} />
+          <meshStandardMaterial color="#f3d2b6" />
+        </mesh>
+        <mesh position={[-0.14, 0.0, 0.1]} rotation={[0, 0, 0.48]}>
+          <capsuleGeometry args={[0.045, 0.3, 4, 8]} />
+          <meshStandardMaterial color="#f3d2b6" />
+        </mesh>
+      </group>
     </group>
   );
 }
