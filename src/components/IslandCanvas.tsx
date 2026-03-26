@@ -45,60 +45,6 @@ function SkyDome() {
   return <mesh geometry={geo} material={material} renderOrder={-1} />;
 }
 
-function CameraAnimator({
-  target,
-  controlsRef,
-  enabled,
-}: {
-  target: [number, number, number] | null;
-  controlsRef: React.RefObject<unknown>;
-  enabled: boolean;
-}) {
-  const { camera } = useThree();
-  const targetVec = useRef(new THREE.Vector3(0, 3, 0));
-  const cameraTarget = useRef(new THREE.Vector3());
-  const previousTarget = useRef<[number, number, number] | null>(null);
-  const animating = useRef(false);
-
-  useFrame(() => {
-    if (!enabled || !target || !animating.current) return;
-
-    const controls = controlsRef.current as { target: THREE.Vector3; update: () => void } | null;
-    if (!controls) return;
-
-    controls.target.lerp(targetVec.current, 0.05);
-    camera.position.lerp(cameraTarget.current, 0.05);
-    controls.update();
-
-    if (
-      controls.target.distanceTo(targetVec.current) < 0.1 &&
-      camera.position.distanceTo(cameraTarget.current) < 0.1
-    ) {
-      animating.current = false;
-    }
-  });
-
-  useEffect(() => {
-    if (!enabled || !target) return;
-
-    const targetChanged =
-      !previousTarget.current ||
-      previousTarget.current[0] !== target[0] ||
-      previousTarget.current[1] !== target[1] ||
-      previousTarget.current[2] !== target[2];
-
-    previousTarget.current = [target[0], target[1], target[2]];
-
-    if (!targetChanged) return;
-
-    targetVec.current.set(target[0], target[1] + 3, target[2]);
-    cameraTarget.current.set(target[0] + 20, target[1] + 15, target[2] + 20);
-    animating.current = true;
-  }, [enabled, target]);
-
-  return null;
-}
-
 function IslandInfo({ island }: { island: ArchipelagoIsland }) {
   const topCategories = island.data.categories
     .filter((category) => category.apiCallCount > 0)
@@ -417,10 +363,10 @@ function BalloonPilot({
     }
 
     const lookAhead = position.current.clone().add(
-      new THREE.Vector3(velocity.current.x * 5.2, 2.9, velocity.current.z * 5.2)
+      new THREE.Vector3(velocity.current.x * 6.8, 2.4, velocity.current.z * 6.8)
     );
     const desiredCamera = position.current.clone().add(
-      new THREE.Vector3(0, 6.6 + Math.sin(state.clock.elapsedTime * 0.6) * 0.35, 20.8)
+      new THREE.Vector3(0, 8.2 + Math.sin(state.clock.elapsedTime * 0.6) * 0.4, 30.5)
     );
 
     camera.position.lerp(desiredCamera, 0.08);
@@ -448,7 +394,6 @@ export default function IslandCanvas({
   const maxRadius = Math.max(20, ...islands.map((island) => island.layout.radius));
   const cameraDistance = Math.max(40, maxRadius * 2.5 + islands.length * 10);
   const controlsRef = useRef<unknown>(null);
-  const selectedIsland = islands.find((island) => island.id === selectedIslandId) ?? null;
 
   return (
     <Canvas
@@ -484,18 +429,12 @@ export default function IslandCanvas({
         ))}
       </Suspense>
 
-      <CameraAnimator
-        target={selectedIsland?.position ?? null}
-        controlsRef={controlsRef}
-        enabled={!balloonMode}
-      />
-
       <BalloonPilot enabled={balloonMode} controlsRef={controlsRef} islands={islands} />
 
       <OrbitControls
         ref={controlsRef as React.RefObject<unknown>}
         enablePan={!balloonMode}
-        enableZoom={!balloonMode}
+        enableZoom={false}
         enableRotate={!balloonMode}
         minDistance={10}
         maxDistance={200}
