@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Core type definitions for Cloud Island (Celesta).
  * Replaces Git City's DeveloperRecord / CityBuilding types.
  */
@@ -26,19 +26,16 @@ export interface IslandData {
 
 /** Single voxel in the 3D cloud island */
 export interface CloudVoxel {
-  position: [number, number, number]; // x, y, z world coords
+  position: [number, number, number];
   categoryId: string;
-  color: string; // hex
-  /** 0–1, ratio of healthy (non-error) calls */
+  color: string;
   healthyRatio: number;
 }
 
 /** Complete layout output for rendering */
 export interface IslandLayout {
   voxels: CloudVoxel[];
-  /** Per-category metadata for labels and interaction */
   sectors: SectorInfo[];
-  /** Island bounding radius */
   radius: number;
 }
 
@@ -47,12 +44,11 @@ export interface SectorInfo {
   categoryId: string;
   label: string;
   color: string;
-  /** Center position of this sector for label placement */
   labelPosition: [number, number, number];
-  /** Normalized activity 0-1 */
   normalizedActivity: number;
   apiCallCount: number;
   errorCount: number;
+  resourceCount: number;
 }
 
 /** A single island in the archipelago */
