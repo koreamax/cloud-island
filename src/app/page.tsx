@@ -18,6 +18,40 @@ const IslandCanvas = dynamic(() => import("@/components/IslandCanvas"), {
 
 type TabMode = "simulator" | "presets" | "connect";
 
+function CloudBackdrop() {
+  const clouds = [
+    {
+      className:
+        "left-[-8%] top-[10%] h-32 w-72 bg-white/8 blur-3xl sm:h-40 sm:w-96",
+    },
+    {
+      className:
+        "right-[-6%] top-[16%] h-28 w-64 bg-sky-200/10 blur-3xl sm:h-36 sm:w-80",
+    },
+    {
+      className:
+        "left-[12%] bottom-[22%] h-24 w-56 bg-white/7 blur-[90px] sm:h-32 sm:w-72",
+    },
+    {
+      className:
+        "right-[10%] bottom-[18%] h-36 w-80 bg-indigo-200/8 blur-[110px] sm:h-44 sm:w-[26rem]",
+    },
+    {
+      className:
+        "left-[38%] top-[24%] h-20 w-48 bg-white/6 blur-[70px] sm:h-24 sm:w-60",
+    },
+  ];
+
+  return (
+    <div className="pointer-events-none absolute inset-0 overflow-hidden">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(120,168,255,0.18),_transparent_40%),linear-gradient(180deg,_rgba(22,30,60,0.28),_rgba(10,10,20,0.08)_45%,_rgba(10,10,20,0.42))]" />
+      {clouds.map((cloud) => (
+        <div key={cloud.className} className={`absolute rounded-full ${cloud.className}`} />
+      ))}
+    </div>
+  );
+}
+
 function arrangeIslands(
   entries: { id: string; label: string; data: IslandData }[]
 ): ArchipelagoIsland[] {
@@ -198,6 +232,8 @@ export default function Home() {
 
   return (
     <div className="relative h-screen w-screen overflow-hidden bg-[#0a0a14]">
+      <CloudBackdrop />
+
       {showLoading && (
         <LoadingScreen
           stage={loadingStage}
