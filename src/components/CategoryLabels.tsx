@@ -39,32 +39,71 @@ function createLabelAtlas(sectors: SectorInfo[]): THREE.CanvasTexture {
         : String(s.apiCallCount);
     const text = `${s.label} (${callsStr})`;
 
-    // Background pill
-    ctx.font = 'bold 20px "Segoe UI", system-ui, sans-serif';
+    // HUD-style tag with angled corners
+    ctx.font = 'bold 18px "Courier New", monospace';
     const textWidth = ctx.measureText(text).width;
-    const padX = 14;
+    const padX = 16;
     const padY = 6;
     const bgW = textWidth + padX * 2;
-    const bgH = 28 + padY * 2;
+    const bgH = 26 + padY * 2;
     const bgX = cx - bgW / 2;
     const bgY = cy - bgH / 2;
-    ctx.fillStyle = "rgba(10, 10, 20, 0.7)";
+    const cut = 6; // corner cut size
+
+    // Clipped background
+    ctx.fillStyle = "rgba(6, 6, 18, 0.85)";
     ctx.beginPath();
-    ctx.roundRect(bgX, bgY, bgW, bgH, 6);
+    ctx.moveTo(bgX + cut, bgY);
+    ctx.lineTo(bgX + bgW - cut, bgY);
+    ctx.lineTo(bgX + bgW, bgY + cut);
+    ctx.lineTo(bgX + bgW, bgY + bgH - cut);
+    ctx.lineTo(bgX + bgW - cut, bgY + bgH);
+    ctx.lineTo(bgX + cut, bgY + bgH);
+    ctx.lineTo(bgX, bgY + bgH - cut);
+    ctx.lineTo(bgX, bgY + cut);
+    ctx.closePath();
     ctx.fill();
 
-    // Border
+    // Border glow
     ctx.strokeStyle = s.color;
+    ctx.lineWidth = 1.5;
+    ctx.shadowColor = s.color;
+    ctx.shadowBlur = 10;
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // Bracket decorations
+    const bLen = 8;
     ctx.lineWidth = 2;
+    ctx.strokeStyle = s.color;
+    // Top-left bracket
     ctx.beginPath();
-    ctx.roundRect(bgX, bgY, bgW, bgH, 6);
+    ctx.moveTo(bgX + cut, bgY - 2);
+    ctx.lineTo(bgX + cut + bLen, bgY - 2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(bgX - 2, bgY + cut);
+    ctx.lineTo(bgX - 2, bgY + cut + bLen);
+    ctx.stroke();
+    // Bottom-right bracket
+    ctx.beginPath();
+    ctx.moveTo(bgX + bgW - cut, bgY + bgH + 2);
+    ctx.lineTo(bgX + bgW - cut - bLen, bgY + bgH + 2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(bgX + bgW + 2, bgY + bgH - cut);
+    ctx.lineTo(bgX + bgW + 2, bgY + bgH - cut - bLen);
     ctx.stroke();
 
-    // Text
+    // Scan line
+    ctx.fillStyle = `${s.color}15`;
+    ctx.fillRect(bgX + 1, cy - 1, bgW - 2, 2);
+
+    // Text with glow
     ctx.fillStyle = s.color;
     ctx.shadowColor = s.color;
-    ctx.shadowBlur = 8;
-    ctx.fillText(text, cx, cy);
+    ctx.shadowBlur = 12;
+    ctx.fillText(text, cx, cy + 1);
     ctx.shadowColor = "transparent";
     ctx.shadowBlur = 0;
   }

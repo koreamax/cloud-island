@@ -2,8 +2,8 @@
 
 import { useState, useMemo, useCallback } from "react";
 import dynamic from "next/dynamic";
-import { generateIslandLayout } from "@/lib/island-layout";
-import type { IslandData, ArchipelagoIsland } from "@/lib/cloud-island";
+import { generateOrbitalLayout } from "@/lib/orbital-layout";
+import type { IslandData, ArchipelagoIsland, OrbitalLayout } from "@/lib/cloud-island";
 import AccountInput from "@/components/AccountInput";
 import CategoryLegend from "@/components/CategoryLegend";
 import CategoryDetailPanel from "@/components/CategoryDetailPanel";
@@ -18,36 +18,10 @@ const IslandCanvas = dynamic(() => import("@/components/IslandCanvas"), {
 
 type TabMode = "simulator" | "presets" | "connect";
 
-function CloudBackdrop() {
-  const clouds = [
-    {
-      className:
-        "left-[-8%] top-[10%] h-32 w-72 bg-white/8 blur-3xl sm:h-40 sm:w-96",
-    },
-    {
-      className:
-        "right-[-6%] top-[16%] h-28 w-64 bg-sky-200/10 blur-3xl sm:h-36 sm:w-80",
-    },
-    {
-      className:
-        "left-[12%] bottom-[22%] h-24 w-56 bg-white/7 blur-[90px] sm:h-32 sm:w-72",
-    },
-    {
-      className:
-        "right-[10%] bottom-[18%] h-36 w-80 bg-indigo-200/8 blur-[110px] sm:h-44 sm:w-[26rem]",
-    },
-    {
-      className:
-        "left-[38%] top-[24%] h-20 w-48 bg-white/6 blur-[70px] sm:h-24 sm:w-60",
-    },
-  ];
-
+function SpaceBackdrop() {
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(120,168,255,0.18),_transparent_40%),linear-gradient(180deg,_rgba(22,30,60,0.28),_rgba(10,10,20,0.08)_45%,_rgba(10,10,20,0.42))]" />
-      {clouds.map((cloud) => (
-        <div key={cloud.className} className={`absolute rounded-full ${cloud.className}`} />
-      ))}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(60,40,120,0.12),_transparent_50%),linear-gradient(180deg,_rgba(5,5,16,0.9),_rgba(8,6,20,0.95)_45%,_rgba(3,3,10,1))]" />
     </div>
   );
 }
@@ -59,7 +33,7 @@ function arrangeIslands(
 
   const layouts = entries.map((entry) => ({
     ...entry,
-    layout: generateIslandLayout(entry.data),
+    layout: generateOrbitalLayout(entry.data),
   }));
 
   if (entries.length === 1) {
@@ -75,23 +49,84 @@ function arrangeIslands(
     ];
   }
 
-  const spacing = 70;
-  const radius = (entries.length * spacing) / (2 * Math.PI);
-
-  return layouts.map((entry, index) => {
-    const angle = (index / entries.length) * Math.PI * 2 - Math.PI / 2;
-    const x = Math.cos(angle) * radius;
-    const z = Math.sin(angle) * radius;
-    const y = index % 3 === 0 ? 0 : index % 3 === 1 ? 15 : -12;
-
-    return {
-      id: entry.id,
-      label: entry.label,
-      data: entry.data,
-      layout: entry.layout,
-      position: [x, y, z] as [number, number, number],
-    };
+  // Each island's exclusion radius = outerRadius + padding
+  const PADDING = 30;
+  const radii = layouts.map((entry) => {
+    const orbital = entry.layout as import("@/lib/cloud-island").OrbitalLayout;
+    return (orbital.outerRadius ?? 40) + PADDING;
   });
+
+  // Place islands with rejection sampling — no overlap within exclusion radii
+  const positions: [number, number, number][] = [];
+  const seeded = (i: number) => {
+    let s = i * 7919 + 1;
+    return () => {
+      s = (s * 1664525 + 1013904223) & 0xffffffff;
+      return (s >>> 0) / 4294967296;
+    };
+  };
+
+  for (let i = 0; i < layouts.length; i++) {
+    if (i === 0) {
+      positions.push([0, 0, 0]);
+      continue;
+    }
+
+    const rand = seeded(i);
+    // Sphere radius grows with island count to give more room
+    const sphereRadius = radii.reduce((a, b) => a + b, 0) * 0.6;
+    let placed = false;
+
+    for (let attempt = 0; attempt < 500; attempt++) {
+      // Random point in 3D sphere (uniform distribution)
+      const u = rand() * 2 - 1;
+      const theta = rand() * Math.PI * 2;
+      const r = sphereRadius * Math.cbrt(rand());
+      const sinU = Math.sqrt(1 - u * u);
+      const x = r * sinU * Math.cos(theta);
+      const y = r * u * 0.4; // flatten Y axis a bit
+      const z = r * sinU * Math.sin(theta);
+
+      // Check minimum distance against all placed islands
+      let tooClose = false;
+      for (let j = 0; j < positions.length; j++) {
+        const dx = x - positions[j][0];
+        const dy = y - positions[j][1];
+        const dz = z - positions[j][2];
+        const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+        const minDist = radii[i] + radii[j];
+        if (dist < minDist) {
+          tooClose = true;
+          break;
+        }
+      }
+
+      if (!tooClose) {
+        positions.push([x, y, z]);
+        placed = true;
+        break;
+      }
+    }
+
+    // Fallback: place far out if rejection sampling fails
+    if (!placed) {
+      const fallbackAngle = (i / layouts.length) * Math.PI * 2;
+      const fallbackR = sphereRadius * 1.5;
+      positions.push([
+        Math.cos(fallbackAngle) * fallbackR,
+        (rand() - 0.5) * 40,
+        Math.sin(fallbackAngle) * fallbackR,
+      ]);
+    }
+  }
+
+  return layouts.map((entry, index) => ({
+    id: entry.id,
+    label: entry.label,
+    data: entry.data,
+    layout: entry.layout,
+    position: positions[index],
+  }));
 }
 
 export default function Home() {
@@ -221,7 +256,7 @@ export default function Home() {
 
   const legendSectors = useMemo(() => {
     if (islands.length === 0) return [];
-    return islands[0].layout.sectors;
+    return (islands[0].layout as OrbitalLayout).sectors;
   }, [islands]);
 
   const tabs: { key: TabMode; label: string }[] = [
@@ -232,7 +267,7 @@ export default function Home() {
 
   return (
     <div className="relative h-screen w-screen overflow-hidden bg-[#0a0a14]">
-      <CloudBackdrop />
+      <SpaceBackdrop />
 
       {showLoading && (
         <LoadingScreen
@@ -256,11 +291,11 @@ export default function Home() {
                 : "border-white/15 bg-[#12121a]/80 text-white/80 hover:bg-[#1b1b28]"
           }`}
         >
-          {balloonMode ? "Exit Balloon" : "Balloon Explore"}
+          {balloonMode ? "Exit Explorer" : "Space Explore"}
         </button>
         {balloonMode && (
           <div className="rounded-full border border-white/15 bg-[#12121a]/75 px-3 py-2 text-xs text-white/65 backdrop-blur-md">
-            Same scene, balloon only: WASD, arrows, Space/E, Shift/Q
+            Space explorer: WASD, arrows, Space/E, Shift/Q
           </div>
         )}
       </div>
@@ -273,6 +308,7 @@ export default function Home() {
             onIslandSelect={setSelectedIslandId}
             onCategoryClick={handleCategoryClick}
             balloonMode={balloonMode}
+            activeCategoryId={selectedCategory}
           />
 
           {!balloonMode && (
@@ -371,9 +407,9 @@ export default function Home() {
         <div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center">
           <div className="text-center">
             <h1 className="text-4xl font-bold tracking-[0.15em] text-indigo-400 sm:text-5xl">
-              CLOUD ISLAND
+              CLOUD ORBIT
             </h1>
-            <p className="mt-2 text-sm text-white/30">AWS Infrastructure 3D Visualizer</p>
+            <p className="mt-2 text-sm text-white/30">AWS Infrastructure Orbital Visualizer</p>
             <p className="mt-4 text-xs text-white/15">Use the panel on the left to get started</p>
           </div>
         </div>

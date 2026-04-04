@@ -13,7 +13,7 @@ export const AWS_CATEGORIES: AWSCategory[] = [
   {
     id: "compute",
     label: "Compute",
-    color: "#ED7100", // AWS orange
+    color: "#FF6B2B", // neon orange
     services: [
       "ec2.amazonaws.com",
       "lambda.amazonaws.com",
@@ -28,7 +28,7 @@ export const AWS_CATEGORIES: AWSCategory[] = [
   {
     id: "storage",
     label: "Storage",
-    color: "#7AA116", // AWS green
+    color: "#39FF14", // neon green
     services: [
       "s3.amazonaws.com",
       "ebs.amazonaws.com",
@@ -42,7 +42,7 @@ export const AWS_CATEGORIES: AWSCategory[] = [
   {
     id: "database",
     label: "Database",
-    color: "#3334B9", // AWS blue
+    color: "#4D7FFF", // electric blue
     services: [
       "rds.amazonaws.com",
       "dynamodb.amazonaws.com",
@@ -58,7 +58,7 @@ export const AWS_CATEGORIES: AWSCategory[] = [
   {
     id: "networking",
     label: "Networking",
-    color: "#8C4FFF", // AWS purple
+    color: "#B44DFF", // vivid violet
     services: [
       "elasticloadbalancing.amazonaws.com",
       "cloudfront.amazonaws.com",
@@ -73,7 +73,7 @@ export const AWS_CATEGORIES: AWSCategory[] = [
   {
     id: "security",
     label: "Security",
-    color: "#DD344C", // AWS red
+    color: "#FF2D55", // hot crimson
     services: [
       "iam.amazonaws.com",
       "sts.amazonaws.com",
@@ -92,7 +92,7 @@ export const AWS_CATEGORIES: AWSCategory[] = [
   {
     id: "management",
     label: "Management",
-    color: "#E7157B", // AWS pink
+    color: "#FF0080", // hot magenta
     services: [
       "cloudtrail.amazonaws.com",
       "cloudwatch.amazonaws.com",
@@ -112,7 +112,7 @@ export const AWS_CATEGORIES: AWSCategory[] = [
   {
     id: "aiml",
     label: "AI/ML",
-    color: "#01A88D", // AWS teal
+    color: "#00FFD4", // neon cyan
     services: [
       "sagemaker.amazonaws.com",
       "bedrock.amazonaws.com",

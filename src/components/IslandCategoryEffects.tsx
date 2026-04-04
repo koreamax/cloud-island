@@ -95,6 +95,14 @@ function LightningEffect({ radius, intensity }: { radius: number; intensity: num
     });
   }, [cloudY, intensity, radius]);
 
+  const lineObjects = useMemo(() => {
+    return bolts.map((points) => {
+      const geometry = new THREE.BufferGeometry().setFromPoints(points);
+      const material = new THREE.LineBasicMaterial({ color: "#ffe45e", linewidth: 2 });
+      return new THREE.Line(geometry, material);
+    });
+  }, [bolts]);
+
   const lineRefs = useRef<(THREE.Line | null)[]>([]);
   const glowRef = useRef<THREE.PointLight>(null);
 
@@ -156,16 +164,14 @@ function LightningEffect({ radius, intensity }: { radius: number; intensity: num
           <meshStandardMaterial color="#e8ecfb" emissive="#ffffff" emissiveIntensity={0.04} />
         </mesh>
       </group>
-      {bolts.map((points, index) => (
-        <line
+      {lineObjects.map((lineObj, index) => (
+        <primitive
           key={index}
-          ref={(line) => {
-            lineRefs.current[index] = line;
+          object={lineObj}
+          ref={(obj: THREE.Line | null) => {
+            lineRefs.current[index] = obj;
           }}
-          geometry={new THREE.BufferGeometry().setFromPoints(points)}
-        >
-          <lineBasicMaterial color="#ffe45e" linewidth={2} />
-        </line>
+        />
       ))}
       <pointLight ref={glowRef} position={[0, radius * 0.8, 0]} color="#ffd84d" distance={42 + intensity * 18} intensity={7} />
     </group>

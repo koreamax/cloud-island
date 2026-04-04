@@ -51,11 +51,57 @@ export interface SectorInfo {
   resourceCount: number;
 }
 
+/** A single satellite orbiting on a ring */
+export interface OrbitalSatellite {
+  angleOffset: number;
+  size: number;
+  categoryId: string;
+  color: string;
+  errorRatio: number;
+  /** Per-satellite radial offset to prevent overlap */
+  radialOffset: number;
+}
+
+/** One orbital ring (one category) */
+export interface OrbitalRing {
+  categoryId: string;
+  label: string;
+  color: string;
+  orbitRadius: number;
+  rank: number;
+  orbitalSpeed: number;
+  satellites: OrbitalSatellite[];
+  normalizedActivity: number;
+  apiCallCount: number;
+  errorCount: number;
+  resourceCount: number;
+  labelPosition: [number, number, number];
+  /** Tilt from XZ plane in radians (atom-style orbital inclination) */
+  inclination: number;
+  /** Rotation of orbital plane around Y axis in radians */
+  ascendingNode: number;
+}
+
+/** Central star properties */
+export interface CentralStar {
+  radius: number;
+  pulseIntensity: number;
+  healthRatio: number;
+}
+
+/** Complete orbital layout output for rendering */
+export interface OrbitalLayout {
+  star: CentralStar;
+  rings: OrbitalRing[];
+  outerRadius: number;
+  sectors: SectorInfo[];
+}
+
 /** A single island in the archipelago */
 export interface ArchipelagoIsland {
   id: string;
   label: string;
   data: IslandData;
-  layout: IslandLayout;
+  layout: IslandLayout | OrbitalLayout;
   position: [number, number, number];
 }
