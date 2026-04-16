@@ -39,3 +39,55 @@ canvas:active {
   cursor: grabbing;
 }
 
+@keyframes ufo-drift {
+  0% {
+    transform: translate3d(0, 0, 0) scale(0.96);
+  }
+  20% {
+    transform: translate3d(-36px, 18px, 0) scale(1);
+  }
+  40% {
+    transform: translate3d(22px, 38px, 0) scale(1.05);
+  }
+  60% {
+    transform: translate3d(58px, 8px, 0) scale(1.02);
+  }
+  80% {
+    transform: translate3d(-18px, -22px, 0) scale(0.98);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(0.96);
+  }
+}
+
+@keyframes ufo-bank {
+  0% {
+    transform: rotateX(66deg) rotateY(-18deg) rotateZ(-9deg);
+  }
+  20% {
+    transform: rotateX(58deg) rotateY(12deg) rotateZ(-3deg);
+  }
+  40% {
+    transform: rotateX(74deg) rotateY(18deg) rotateZ(7deg);
+  }
+  60% {
+    transform: rotateX(62deg) rotateY(-14deg) rotateZ(4deg);
+  }
+  80% {
+    transform: rotateX(70deg) rotateY(8deg) rotateZ(-6deg);
+  }
+  100% {
+    transform: rotateX(66deg) rotateY(-18deg) rotateZ(-9deg);
+  }
+}
+
+.bg-ufo-drift {
+  animation: ufo-drift 11s ease-in-out infinite;
+  will-change: transform;
+}
+
+.bg-ufo-bank {
+  animation: ufo-bank 6.5s ease-in-out infinite;
+  will-change: transform;
+}
+

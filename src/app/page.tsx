@@ -21,7 +21,8 @@ type TabMode = "simulator" | "presets" | "connect";
 function SpaceBackdrop() {
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(60,40,120,0.12),_transparent_50%),linear-gradient(180deg,_rgba(5,5,16,0.9),_rgba(8,6,20,0.95)_45%,_rgba(3,3,10,1))]" />
+      <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_50%_42%,_rgba(76,58,162,0.18),_transparent_22%),radial-gradient(circle_at_50%_46%,_rgba(15,16,34,0.92),_rgba(5,5,14,0)_30%),radial-gradient(circle_at_center,_rgba(60,40,120,0.12),_transparent_50%),linear-gradient(180deg,_rgba(5,5,16,0.88),_rgba(8,6,20,0.96)_42%,_rgba(3,3,10,1))]" />
+      <div className="absolute inset-x-0 bottom-0 z-[2] h-40 bg-[linear-gradient(180deg,rgba(2,2,8,0),rgba(2,2,8,0.82)_70%,rgba(0,0,0,0.96))]" />
     </div>
   );
 }

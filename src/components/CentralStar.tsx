@@ -81,7 +81,12 @@ export default function CentralStar({ star }: CentralStarProps) {
   const lightRef = useRef<THREE.PointLight>(null);
   const coronaRef = useRef<THREE.ShaderMaterial>(null);
 
-  const coreColor = star.healthRatio > 0.8 ? "#FFD700" : star.healthRatio > 0.5 ? "#FFA500" : "#FF6347";
+  const deathRatio = Math.pow(1 - star.healthRatio, 0.45);
+  const healthyColor = new THREE.Color(
+    star.healthRatio > 0.8 ? "#FFD700" : star.healthRatio > 0.5 ? "#FFA500" : "#FF6347"
+  );
+  const dyingColor = new THREE.Color("#0b0909");
+  const coreColor = `#${healthyColor.lerp(dyingColor, deathRatio * 0.92).getHexString()}`;
   const glowColor = star.healthRatio > 0.8 ? "#FFF5CC" : "#FFE0B2";
 
   const coronaMaterial = useMemo(() => {
@@ -111,16 +116,19 @@ export default function CentralStar({ star }: CentralStarProps) {
 
     if (innerRef.current) {
       const mat = innerRef.current.material as THREE.MeshStandardMaterial;
-      mat.emissiveIntensity = 1.5 + Math.sin(t * 3) * 0.3 * star.pulseIntensity;
+      mat.emissiveIntensity =
+        Math.max(0.12, 1.2 - deathRatio * 1.22) +
+        Math.sin(t * 3) * 0.22 * star.pulseIntensity;
     }
 
     if (glowRef.current) {
       const mat = glowRef.current.material as THREE.MeshBasicMaterial;
-      mat.opacity = 0.15 + Math.sin(t * 2.5) * 0.05;
+      mat.opacity = Math.max(0.01, 0.13 - deathRatio * 0.12 + Math.sin(t * 2.5) * 0.03);
     }
 
     if (lightRef.current) {
-      lightRef.current.intensity = 2 + Math.sin(t * 2) * 0.5 * star.pulseIntensity;
+      lightRef.current.intensity =
+        Math.max(0.15, 1.65 - deathRatio * 1.42 + Math.sin(t * 2) * 0.38 * star.pulseIntensity);
     }
 
     if (coronaRef.current) {
@@ -136,9 +144,9 @@ export default function CentralStar({ star }: CentralStarProps) {
         <meshStandardMaterial
           color={coreColor}
           emissive={coreColor}
-          emissiveIntensity={1.5}
-          roughness={0.2}
-          metalness={0.1}
+          emissiveIntensity={Math.max(0.08, 1.15 - deathRatio * 1.18)}
+          roughness={0.24 + deathRatio * 0.5}
+          metalness={0.08 + deathRatio * 0.26}
         />
       </mesh>
 
@@ -183,7 +191,7 @@ export default function CentralStar({ star }: CentralStarProps) {
         <meshBasicMaterial
           color={glowColor}
           transparent
-          opacity={0.15}
+          opacity={Math.max(0.008, 0.12 - deathRatio * 0.115)}
           blending={THREE.AdditiveBlending}
           depthWrite={false}
           side={THREE.BackSide}
@@ -196,7 +204,7 @@ export default function CentralStar({ star }: CentralStarProps) {
         <meshBasicMaterial
           color={glowColor}
           transparent
-          opacity={0.06}
+          opacity={Math.max(0.004, 0.045 - deathRatio * 0.04)}
           blending={THREE.AdditiveBlending}
           depthWrite={false}
           side={THREE.BackSide}
@@ -209,7 +217,7 @@ export default function CentralStar({ star }: CentralStarProps) {
         <meshBasicMaterial
           color={coreColor}
           transparent
-          opacity={0.025}
+          opacity={Math.max(0.002, 0.018 - deathRatio * 0.016)}
           blending={THREE.AdditiveBlending}
           depthWrite={false}
           side={THREE.BackSide}
