@@ -1,19 +1,3 @@
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.0"
-    }
-  }
-}
-
-provider "aws" {
-  region  = "ap-northeast-2"
-  profile = "roomeya"
-}
-
-data "aws_caller_identity" "current" {}
-
 resource "aws_iam_role" "celesta_readonly" {
   name = "CelestaReadOnly"
 
@@ -52,11 +36,24 @@ resource "aws_iam_role_policy" "read_cloudtrail" {
   })
 }
 
-output "role_arn" {
-  value       = aws_iam_role.celesta_readonly.arn
-  description = "Use this Role ARN in Celesta Connect AWS tab"
+resource "aws_iam_role" "lambda_exec" {
+  name = "${var.project_name}-lambda-exec"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        }
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
 }
 
-output "account_id" {
-  value = data.aws_caller_identity.current.account_id
+resource "aws_iam_role_policy_attachment" "lambda_basic" {
+  role       = aws_iam_role.lambda_exec.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }

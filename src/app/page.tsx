@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useCallback } from "react";
 import dynamic from "next/dynamic";
+import { syncIsland } from "@/lib/api-gateway";
 import { generateOrbitalLayout } from "@/lib/orbital-layout";
 import type { IslandData, ArchipelagoIsland, OrbitalLayout } from "@/lib/cloud-island";
 import AccountInput from "@/components/AccountInput";
@@ -173,21 +174,10 @@ export default function Home() {
       setLoadingError(null);
 
       try {
-        const response = await fetch("/api/sync", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ roleArn }),
-        });
-
-        if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.error || "Failed to sync AWS data");
-        }
-
         setLoadingStage("generating");
         setLoadingProgress(50);
 
-        const data: IslandData = await response.json();
+        const data: IslandData = await syncIsland(roleArn);
 
         setLoadingStage("rendering");
         setLoadingProgress(80);
