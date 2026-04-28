@@ -5,6 +5,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:frontend": "next build",
+    "build:lambdas": "tsc -p tsconfig.lambda.json",
+    "build:deploy": "npm run build:frontend && npm run build:lambdas",
     "start": "next start",
     "lint": "eslint"
   },
