@@ -1,10 +1,20 @@
 ﻿"use client";
 
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
-import { fetchSavedIslands, syncIsland } from "@/lib/api-gateway";
+import {
+  fetchActivePlayers,
+  fetchSavedIslands,
+  syncIsland,
+  updatePlayerPresence,
+} from "@/lib/api-gateway";
 import { generateOrbitalLayout } from "@/lib/orbital-layout";
-import type { IslandData, ArchipelagoIsland, OrbitalLayout } from "@/lib/cloud-island";
+import type {
+  IslandData,
+  ArchipelagoIsland,
+  MultiplayerPlayerState,
+  OrbitalLayout,
+} from "@/lib/cloud-island";
 import AccountInput from "@/components/AccountInput";
 import CategoryLegend from "@/components/CategoryLegend";
 import CategoryDetailPanel from "@/components/CategoryDetailPanel";
@@ -19,6 +29,11 @@ const IslandCanvas = dynamic(() => import("@/components/IslandCanvas"), {
 });
 
 type TabMode = "simulator" | "connect";
+type BalloonPresenceState = {
+  active: boolean;
+  position: [number, number, number];
+  forward: [number, number, number];
+};
 
 function SpaceBackdrop() {
   return (
@@ -155,6 +170,13 @@ export default function Home() {
   const [cameraFocusNonce, setCameraFocusNonce] = useState(0);
   const [spaceBattleActive, setSpaceBattleActive] = useState(false);
   const [spaceBattleNonce, setSpaceBattleNonce] = useState(0);
+  const [playerId, setPlayerId] = useState<string | null>(null);
+  const [remotePlayers, setRemotePlayers] = useState<MultiplayerPlayerState[]>([]);
+  const balloonPresenceRef = useRef<BalloonPresenceState>({
+    active: false,
+    position: [0, 0, 0],
+    forward: [0, 0, -1],
+  });
 
   const islands = useMemo(() => arrangeIslands(islandEntries), [islandEntries]);
   const selectedIsland = useMemo(
@@ -244,6 +266,18 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    const storageKey = "cloud-island-player-id";
+    const existing =
+      window.localStorage.getItem(storageKey) ??
+      (typeof crypto !== "undefined" && "randomUUID" in crypto
+        ? crypto.randomUUID()
+        : `player-${Math.random().toString(36).slice(2, 12)}`);
+
+    window.localStorage.setItem(storageKey, existing);
+    setPlayerId(existing);
+  }, []);
+
+  useEffect(() => {
     let active = true;
 
     async function loadSavedIslands() {
@@ -290,6 +324,67 @@ export default function Home() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!playerId) return;
+    let active = true;
+
+    const loadPlayers = async () => {
+      try {
+        const players = await fetchActivePlayers();
+        if (!active) return;
+        setRemotePlayers(players.filter((player) => player.playerId !== playerId));
+      } catch (error) {
+        console.error("Failed to load active players:", error);
+      }
+    };
+
+    void loadPlayers();
+    const intervalId = window.setInterval(() => {
+      void loadPlayers();
+    }, 2000);
+
+    return () => {
+      active = false;
+      window.clearInterval(intervalId);
+    };
+  }, [playerId]);
+
+  useEffect(() => {
+    if (!playerId || !playerIsland) return;
+
+    const publishPresence = async (active: boolean) => {
+      try {
+        const snapshot = balloonPresenceRef.current;
+        await updatePlayerPresence({
+          playerId,
+          label: playerIsland.label,
+          islandId: playerIsland.id,
+          active,
+          balloonMode: active,
+          position: snapshot.position,
+          forward: snapshot.forward,
+        });
+      } catch (error) {
+        console.error("Failed to update player presence:", error);
+      }
+    };
+
+    if (!balloonMode) {
+      void publishPresence(false);
+      return;
+    }
+
+    void publishPresence(true);
+    const intervalId = window.setInterval(() => {
+      void publishPresence(true);
+    }, 1000);
+
+    return () => {
+      window.clearInterval(intervalId);
+      void publishPresence(false);
+    };
+  }, [balloonMode, playerId, playerIsland]);
+
   const handleCategoryClick = useCallback((categoryId: string) => {
     if (balloonMode) return;
     setSelectedCategory((prev) => (prev === categoryId ? null : categoryId));
@@ -303,6 +398,10 @@ export default function Home() {
     },
     [focusIsland, upsertIsland]
   );
+
+  const handleBalloonStateChange = useCallback((state: BalloonPresenceState) => {
+    balloonPresenceRef.current = state;
+  }, []);
 
   const selectedActivity = useMemo(() => {
     if (!selectedCategory || !selectedIsland) return null;
@@ -384,6 +483,8 @@ export default function Home() {
             battlePlayerIslandId={playerIsland?.id ?? null}
             battleTargetIslandId={selectedIsland?.id ?? null}
             onBattleFinished={() => setSpaceBattleActive(false)}
+            remotePlayers={remotePlayers}
+            onBalloonStateChange={handleBalloonStateChange}
           />
 
           {!balloonMode && (

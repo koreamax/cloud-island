@@ -79,7 +79,10 @@ resource "aws_iam_role_policy" "lambda_app" {
           "dynamodb:Query",
           "dynamodb:Scan",
         ]
-        Resource = aws_dynamodb_table.island_snapshots.arn
+        Resource = [
+          aws_dynamodb_table.island_snapshots.arn,
+          aws_dynamodb_table.player_presence.arn,
+        ]
       }
     ]
   })

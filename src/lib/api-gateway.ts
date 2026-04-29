@@ -1,4 +1,8 @@
-import type { IslandData, SavedIslandSummary } from "@/shared/cloud/cloud-island";
+import type {
+  IslandData,
+  MultiplayerPlayerState,
+  SavedIslandSummary,
+} from "@/shared/cloud/cloud-island";
 
 type RuntimeConfig = {
   apiBaseUrl?: string;
@@ -73,4 +77,51 @@ export async function fetchSavedIslands(): Promise<SavedIslandSummary[]> {
 
   const payload = (await response.json()) as { islands?: SavedIslandSummary[] };
   return payload.islands ?? [];
+}
+
+export async function fetchActivePlayers(): Promise<MultiplayerPlayerState[]> {
+  const apiBaseUrl = await getApiBaseUrl();
+  const response = await fetch(`${apiBaseUrl}/players`, {
+    method: "GET",
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    const error = (await response.json().catch(() => null)) as
+      | { error?: string }
+      | null;
+    throw new Error(error?.error || "Failed to load active players");
+  }
+
+  const payload = (await response.json()) as {
+    players?: MultiplayerPlayerState[];
+  };
+  return payload.players ?? [];
+}
+
+export async function updatePlayerPresence(
+  player: Omit<MultiplayerPlayerState, "updatedAt">
+): Promise<MultiplayerPlayerState> {
+  const apiBaseUrl = await getApiBaseUrl();
+  const response = await fetch(`${apiBaseUrl}/players`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(player),
+  });
+
+  if (!response.ok) {
+    const error = (await response.json().catch(() => null)) as
+      | { error?: string }
+      | null;
+    throw new Error(error?.error || "Failed to update player presence");
+  }
+
+  const payload = (await response.json()) as {
+    player?: MultiplayerPlayerState;
+  };
+  if (!payload.player) {
+    throw new Error("Player presence response is missing player");
+  }
+
+  return payload.player;
 }

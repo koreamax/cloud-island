@@ -32,6 +32,17 @@ export interface SavedIslandSummary {
   data: IslandData;
 }
 
+export interface MultiplayerPlayerState {
+  playerId: string;
+  label: string;
+  islandId?: string | null;
+  active: boolean;
+  balloonMode: boolean;
+  position: [number, number, number];
+  forward: [number, number, number];
+  updatedAt: string;
+}
+
 /** Single voxel in the 3D cloud island */
 export interface CloudVoxel {
   position: [number, number, number];

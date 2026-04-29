@@ -6,7 +6,12 @@ import { OrbitControls, Stars, Html, useTexture } from "@react-three/drei";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import * as THREE from "three";
 import OrbitalScene from "./OrbitalScene";
-import type { ArchipelagoIsland, OrbitalLayout, CategoryActivity } from "@/lib/cloud-island";
+import type {
+  ArchipelagoIsland,
+  MultiplayerPlayerState,
+  OrbitalLayout,
+  CategoryActivity,
+} from "@/lib/cloud-island";
 import { getCategoryById } from "@/lib/aws-categories";
 
 const BLACK_HOLE_CENTER = new THREE.Vector3(-34, 8, -560);
@@ -34,6 +39,12 @@ interface BalloonExploreState {
   active: boolean;
   position: THREE.Vector3;
   forward: THREE.Vector3;
+}
+
+interface BalloonStateSnapshot {
+  active: boolean;
+  position: [number, number, number];
+  forward: [number, number, number];
 }
 
 interface BattleProjectile {
@@ -943,12 +954,14 @@ function BalloonPilot({
   islands,
   stateRef,
   startIsland,
+  onStateChange,
 }: {
   enabled: boolean;
   controlsRef: React.RefObject<unknown>;
   islands: ArchipelagoIsland[];
   stateRef: React.RefObject<BalloonExploreState>;
   startIsland: ArchipelagoIsland | null;
+  onStateChange?: (state: BalloonStateSnapshot) => void;
 }) {
   const { camera } = useThree();
   const balloonRef = useRef<THREE.Group | null>(null);
@@ -960,6 +973,7 @@ function BalloonPilot({
   const desiredCamera = useRef(new THREE.Vector3());
   const desiredLook = useRef(new THREE.Vector3());
   const wormholeCooldownUntil = useRef(0);
+  const lastBroadcastAt = useRef(0);
   const controls = useRef({
     forward: false,
     backward: false,
@@ -1094,6 +1108,21 @@ function BalloonPilot({
       if (controlsInstance) controlsInstance.enabled = true;
       if (balloonRef.current) balloonRef.current.visible = false;
       stateRef.current.active = false;
+      if (onStateChange) {
+        onStateChange({
+          active: false,
+          position: [
+            stateRef.current.position.x,
+            stateRef.current.position.y,
+            stateRef.current.position.z,
+          ],
+          forward: [
+            stateRef.current.forward.x,
+            stateRef.current.forward.y,
+            stateRef.current.forward.z,
+          ],
+        });
+      }
       return;
     }
 
@@ -1153,6 +1182,19 @@ function BalloonPilot({
     stateRef.current.position.copy(position.current);
     stateRef.current.forward.copy(lockedViewDir.current);
 
+    if (onStateChange && state.clock.elapsedTime - lastBroadcastAt.current >= 0.25) {
+      lastBroadcastAt.current = state.clock.elapsedTime;
+      onStateChange({
+        active: true,
+        position: [position.current.x, position.current.y, position.current.z],
+        forward: [
+          lockedViewDir.current.x,
+          lockedViewDir.current.y,
+          lockedViewDir.current.z,
+        ],
+      });
+    }
+
     desiredCamera.current
       .copy(position.current)
       .addScaledVector(lockedViewDir.current, -followOffset.current.z)
@@ -1193,6 +1235,35 @@ function BattleProjectileBolt({
         toneMapped={false}
       />
     </mesh>
+  );
+}
+
+function RemoteBalloon({ player }: { player: MultiplayerPlayerState }) {
+  const balloonRef = useRef<THREE.Group | null>(null);
+  const forward = useMemo(
+    () => new THREE.Vector3(...player.forward).normalize(),
+    [player.forward]
+  );
+  const yaw = Math.atan2(forward.x, forward.z);
+  const pitch = -forward.y * 0.1;
+
+  useEffect(() => {
+    if (!balloonRef.current) return;
+    balloonRef.current.position.set(...player.position);
+    balloonRef.current.rotation.set(pitch, yaw, 0);
+  }, [pitch, player.position, yaw]);
+
+  return (
+    <>
+      <Balloon balloonRef={balloonRef} />
+      <group position={[player.position[0], player.position[1] + 4.8, player.position[2]]}>
+        <Html center transform={false} occlude={false} zIndexRange={[180, 0]}>
+          <div className="pointer-events-none -translate-y-4 rounded-md border border-cyan-300/30 bg-[#07111f]/88 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-100 shadow-[0_8px_24px_rgba(0,0,0,0.45)]">
+            {player.label}
+          </div>
+        </Html>
+      </group>
+    </>
   );
 }
 
@@ -1528,6 +1599,8 @@ interface IslandCanvasProps {
   battlePlayerIslandId?: string | null;
   battleTargetIslandId?: string | null;
   onBattleFinished?: () => void;
+  remotePlayers?: MultiplayerPlayerState[];
+  onBalloonStateChange?: (state: BalloonStateSnapshot) => void;
 }
 
 export default function IslandCanvas({
@@ -1544,6 +1617,8 @@ export default function IslandCanvas({
   battlePlayerIslandId = null,
   battleTargetIslandId = null,
   onBattleFinished,
+  remotePlayers = [],
+  onBalloonStateChange,
 }: IslandCanvasProps) {
   const outerRadius = useMemo(() => {
     if (islands.length === 0) return 40;
@@ -1616,13 +1691,18 @@ export default function IslandCanvas({
         ))}
       </Suspense>
 
-      <BalloonPilot
-        enabled={balloonMode}
-        controlsRef={controlsRef}
-        islands={islands}
-        stateRef={balloonStateRef}
-        startIsland={exploreStartIsland}
-      />
+        <BalloonPilot
+          enabled={balloonMode}
+          controlsRef={controlsRef}
+          islands={islands}
+          stateRef={balloonStateRef}
+          startIsland={exploreStartIsland}
+          onStateChange={onBalloonStateChange}
+        />
+
+        {remotePlayers.map((player) => (
+          <RemoteBalloon key={player.playerId} player={player} />
+        ))}
 
       {balloonMode && battleActive && battlePlayerIsland && battleTargetIsland && (
         <SpaceBattleController

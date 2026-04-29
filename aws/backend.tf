@@ -21,6 +21,17 @@ data "archive_file" "lambda_bundle" {
   output_path = "../dist/lambda-bundle.zip"
 }
 
+resource "aws_dynamodb_table" "player_presence" {
+  name         = "${var.project_name}-player-presence"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "playerId"
+
+  attribute {
+    name = "playerId"
+    type = "S"
+  }
+}
+
 resource "aws_lambda_function" "sync" {
   function_name    = "${var.project_name}-sync"
   role             = aws_iam_role.lambda_exec.arn
@@ -49,7 +60,8 @@ resource "aws_lambda_function" "island" {
 
   environment {
     variables = {
-      SNAPSHOT_TABLE_NAME = aws_dynamodb_table.island_snapshots.name
+      SNAPSHOT_TABLE_NAME     = aws_dynamodb_table.island_snapshots.name
+      PLAYER_STATE_TABLE_NAME = aws_dynamodb_table.player_presence.name
     }
   }
 }
@@ -94,6 +106,18 @@ resource "aws_apigatewayv2_route" "island" {
 resource "aws_apigatewayv2_route" "islands" {
   api_id    = aws_apigatewayv2_api.http.id
   route_key = "GET /islands"
+  target    = "integrations/${aws_apigatewayv2_integration.island.id}"
+}
+
+resource "aws_apigatewayv2_route" "players_get" {
+  api_id    = aws_apigatewayv2_api.http.id
+  route_key = "GET /players"
+  target    = "integrations/${aws_apigatewayv2_integration.island.id}"
+}
+
+resource "aws_apigatewayv2_route" "players_post" {
+  api_id    = aws_apigatewayv2_api.http.id
+  route_key = "POST /players"
   target    = "integrations/${aws_apigatewayv2_integration.island.id}"
 }
 
