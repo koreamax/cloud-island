@@ -28,56 +28,56 @@ export default function IslandDetailPanel({
       : "0.0";
 
   return (
-    <div className="absolute right-4 top-20 z-40 max-h-[calc(100vh-6.5rem)] w-[26rem] overflow-hidden rounded-2xl border border-white/10 bg-[#12121a]/95 text-white shadow-2xl backdrop-blur-md">
-      <div className="flex items-start justify-between gap-4 border-b border-white/8 px-5 pb-4 pt-5">
+    <div className="panel-premium absolute right-4 top-20 z-40 max-h-[calc(100vh-6.5rem)] w-[23.5rem] overflow-hidden rounded-[1.8rem] text-white">
+      <div className="flex items-start justify-between gap-4 border-b border-white/8 px-4 pb-4 pt-5">
         <div className="min-w-0">
-          <div className="text-[10px] uppercase tracking-[0.25em] text-white/35">
+          <div className="text-[10px] uppercase tracking-[0.3em] text-cyan-100/35">
             Selected Planet
           </div>
-          <h2 className="mt-1 text-xl font-semibold text-indigo-300">
+          <h2 className="mt-2 text-2xl font-semibold text-white">
             {islandLabel}
           </h2>
-          <div className="mt-2 font-mono text-[11px] text-white/40">
+          <div className="mt-2 inline-flex rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 font-mono text-[11px] text-white/46">
             Account {islandData.accountId}
           </div>
         </div>
         <button
           onClick={onClose}
-          className="rounded-lg p-1.5 transition-colors hover:bg-white/10"
+          className="btn-glass rounded-full p-2 text-white/55"
         >
           <X size={18} className="text-white/55" />
         </button>
       </div>
 
-      <div className="max-h-[calc(100vh-13rem)] overflow-y-auto px-5 pb-5 pt-4">
+      <div className="max-h-[calc(100vh-13rem)] overflow-y-auto px-4 pb-4 pt-4">
         {actionSlot && <div className="mb-4">{actionSlot}</div>}
 
         <div className="mb-4 grid grid-cols-3 gap-3">
-          <div className="rounded-xl bg-white/5 p-3">
-            <div className="text-lg font-semibold">
+          <div className="stat-card-premium rounded-2xl p-3">
+            <div className="text-xl font-semibold text-white">
               {islandData.totalApiCalls.toLocaleString()}
             </div>
-            <div className="text-[10px] uppercase tracking-wider text-white/45">
+            <div className="mt-1 text-[10px] uppercase tracking-[0.24em] text-white/42">
               API Calls
             </div>
           </div>
-          <div className="rounded-xl bg-white/5 p-3">
-            <div className="text-lg font-semibold text-rose-300">
+          <div className="stat-card-premium rounded-2xl p-3">
+            <div className="text-xl font-semibold text-rose-200">
               {islandData.totalErrors.toLocaleString()}
             </div>
-            <div className="text-[10px] uppercase tracking-wider text-white/45">
+            <div className="mt-1 text-[10px] uppercase tracking-[0.24em] text-white/42">
               Errors
             </div>
           </div>
-          <div className="rounded-xl bg-white/5 p-3">
-            <div className="text-lg font-semibold text-emerald-300">{errorRate}%</div>
-            <div className="text-[10px] uppercase tracking-wider text-white/45">
+          <div className="stat-card-premium rounded-2xl p-3">
+            <div className="text-xl font-semibold text-emerald-200">{errorRate}%</div>
+            <div className="mt-1 text-[10px] uppercase tracking-[0.24em] text-white/42">
               Error Rate
             </div>
           </div>
         </div>
 
-        <div className="mb-4 rounded-xl border border-white/6 bg-white/[0.03] px-3 py-2 text-[11px] text-white/45">
+        <div className="panel-section mb-4 rounded-2xl px-3 py-2 text-[11px] text-white/48">
           {new Date(islandData.dateRange.start).toLocaleString()} to{" "}
           {new Date(islandData.dateRange.end).toLocaleString()}
         </div>
@@ -95,35 +95,40 @@ export default function IslandDetailPanel({
             return (
               <div
                 key={category.categoryId}
-                className="rounded-xl border border-white/6 bg-white/[0.03] p-3"
+                className="panel-section rounded-2xl p-3"
               >
                 <div className="mb-2 flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2">
                     <div
-                      className="h-2.5 w-2.5 rounded-full"
-                      style={{ backgroundColor: categoryMeta.color }}
+                      className="h-2.5 w-2.5 rounded-full shadow-[0_0_12px_currentColor]"
+                      style={{ backgroundColor: categoryMeta.color, color: categoryMeta.color }}
                     />
-                    <div className="text-sm font-medium">{categoryMeta.label}</div>
+                    <div className="text-sm font-medium text-white/86">{categoryMeta.label}</div>
                   </div>
-                  <div className="text-[11px] text-white/45">
+                  <div className="rounded-full border border-white/8 bg-white/[0.04] px-2 py-1 text-[11px] text-white/45">
                     {category.apiCallCount.toLocaleString()} calls
                   </div>
                 </div>
 
-                <div className="mb-2 h-1.5 rounded-full bg-white/10">
+                <div className="mb-3 h-2 rounded-full bg-white/10 shadow-inner shadow-black/30">
                   <div
                     className="h-full rounded-full"
                     style={{
                       width: `${activityRatio}%`,
+                      boxShadow: `0 0 18px ${categoryMeta.color}66`,
                       backgroundColor: categoryMeta.color,
                     }}
                   />
                 </div>
 
-                <div className="grid grid-cols-3 gap-2 text-[11px] text-white/50">
-                  <div>Resources {category.resourceCount.toLocaleString()}</div>
-                  <div>Errors {category.errorCount.toLocaleString()}</div>
-                  <div>
+                <div className="grid grid-cols-3 gap-2 text-[11px]">
+                  <div className="rounded-xl border border-white/6 bg-black/10 px-2 py-2 text-white/58">
+                    Resources {category.resourceCount.toLocaleString()}
+                  </div>
+                  <div className="rounded-xl border border-white/6 bg-black/10 px-2 py-2 text-white/58">
+                    Errors {category.errorCount.toLocaleString()}
+                  </div>
+                  <div className="rounded-xl border border-white/6 bg-black/10 px-2 py-2 text-white/58">
                     Top {category.topServices[0]?.service.replace(".amazonaws.com", "") ?? "-"}
                   </div>
                 </div>

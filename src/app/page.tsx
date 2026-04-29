@@ -15,20 +15,16 @@ import type {
   MultiplayerPlayerState,
   OrbitalLayout,
 } from "@/lib/cloud-island";
-import AccountInput from "@/components/AccountInput";
 import CategoryLegend from "@/components/CategoryLegend";
 import CategoryDetailPanel from "@/components/CategoryDetailPanel";
 import IslandDetailPanel from "@/components/IslandDetailPanel";
 import LoadingScreen, { type LoadingStage } from "@/components/LoadingScreen";
-import SimulatorPanel from "@/components/SimulatorPanel";
 import { PRESET_DATA } from "@/lib/mock-data";
-import { X } from "lucide-react";
 
 const IslandCanvas = dynamic(() => import("@/components/IslandCanvas"), {
   ssr: false,
 });
 
-type TabMode = "simulator" | "connect";
 type BalloonPresenceState = {
   active: boolean;
   position: [number, number, number];
@@ -163,9 +159,10 @@ export default function Home() {
   const [loadingError, setLoadingError] = useState<string | null>(null);
   const [showLoading, setShowLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<TabMode>("simulator");
   const [lastRoleArn, setLastRoleArn] = useState<string | null>(null);
-  const [selectedIslandId, setSelectedIslandId] = useState<string | null>(null);
+  const [selectedIslandId, setSelectedIslandId] = useState<string | null>(
+    PRESET_DATA[0]?.id ?? null
+  );
   const [balloonMode, setBalloonMode] = useState(false);
   const [cameraFocusNonce, setCameraFocusNonce] = useState(0);
   const [spaceBattleActive, setSpaceBattleActive] = useState(false);
@@ -179,6 +176,13 @@ export default function Home() {
   });
 
   const islands = useMemo(() => arrangeIslands(islandEntries), [islandEntries]);
+  const topIslandEntries = useMemo(
+    () =>
+      [...islandEntries]
+        .sort((left, right) => right.data.totalApiCalls - left.data.totalApiCalls)
+        .slice(0, 5),
+    [islandEntries]
+  );
   const selectedIsland = useMemo(
     () => islands.find((island) => island.id === selectedIslandId) ?? null,
     [islands, selectedIslandId]
@@ -390,15 +394,6 @@ export default function Home() {
     setSelectedCategory((prev) => (prev === categoryId ? null : categoryId));
   }, [balloonMode]);
 
-  const handleSimulatorChange = useCallback(
-    (data: IslandData) => {
-      upsertIsland("simulator", "Simulator", data);
-      focusIsland("simulator");
-      setSelectedCategory(null);
-    },
-    [focusIsland, upsertIsland]
-  );
-
   const handleBalloonStateChange = useCallback((state: BalloonPresenceState) => {
     balloonPresenceRef.current = state;
   }, []);
@@ -418,11 +413,6 @@ export default function Home() {
     if (islands.length === 0) return [];
     return (islands[0].layout as OrbitalLayout).sectors;
   }, [islands]);
-
-  const tabs: { key: TabMode; label: string }[] = [
-    { key: "simulator", label: "Simulator" },
-    { key: "connect", label: "Connect AWS" },
-  ];
 
   useEffect(() => {
     if (!balloonMode || !selectedIsland || !playerIsland || selectedIsland.id === playerIsland.id) {
@@ -450,12 +440,12 @@ export default function Home() {
             setBalloonMode((prev) => !prev);
           }}
           disabled={islands.length === 0}
-          className={`rounded-full border px-4 py-2 text-sm font-medium shadow-lg backdrop-blur-md transition ${
+          className={`rounded-full px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md ${
             islands.length === 0
-              ? "cursor-not-allowed border-white/10 bg-[#12121a]/50 text-white/30"
+              ? "btn-glass cursor-not-allowed text-white/35"
               : balloonMode
-                ? "border-orange-200/60 bg-orange-300/25 text-orange-50"
-                : "border-white/15 bg-[#12121a]/80 text-white/80 hover:bg-[#1b1b28]"
+                ? "btn-glass"
+                : "btn-premium"
           }`}
         >
           {balloonMode ? "Exit Explorer" : "Space Explore"}
@@ -540,76 +530,65 @@ export default function Home() {
       )}
 
       {islandEntries.length > 0 && !balloonMode && (
-        <div className="absolute left-4 top-4 z-40 flex flex-col gap-1 rounded-lg border border-white/10 bg-[#12121a]/80 p-2 backdrop-blur-md">
-          <div className="px-1 text-[10px] uppercase tracking-widest text-white/30">
-            Islands ({islandEntries.length})
-          </div>
-          {islandEntries.map((entry) => (
-            <div
-              key={entry.id}
-              onClick={() => focusIsland(entry.id)}
-              className={`flex cursor-pointer items-center justify-between gap-2 rounded-md px-2 py-1 text-xs transition-colors ${
-                selectedIslandId === entry.id
-                  ? "bg-indigo-500/20 text-indigo-300"
-                  : "text-white/70 hover:bg-white/5"
-              }`}
-            >
-              <span className="max-w-[180px] truncate font-mono">{entry.label}</span>
-              <span className="text-[10px] text-white/30">
-                {entry.data.totalApiCalls.toLocaleString()}
-              </span>
-              <button
-                onClick={(event) => {
-                  event.stopPropagation();
-                  removeIsland(entry.id);
-                }}
-                className="text-white/20 transition-colors hover:text-red-400"
-              >
-                <X size={12} />
-              </button>
+        <div className="panel-premium absolute left-4 top-4 z-40 flex w-[16.75rem] flex-col gap-2 rounded-[1.4rem] p-2.5 text-white">
+          <div className="px-1">
+            <div className="text-[10px] uppercase tracking-[0.32em] text-cyan-100/36">
+              Leaderboard
             </div>
+            <div className="mt-1.5 text-sm font-semibold tracking-[0.08em] text-white/84">
+              Top Islands
+            </div>
+            <div className="mt-0.5 text-[10px] text-white/32">
+              Ranked by total API calls
+            </div>
+          </div>
+          {topIslandEntries.map((entry, index) => (
+            (() => {
+              const rank = index + 1;
+              const rankTone =
+                rank === 1
+                  ? "from-amber-200/30 via-yellow-200/16 to-white/6 border-amber-200/24 text-amber-100"
+                  : rank === 2
+                    ? "from-slate-100/22 via-cyan-100/10 to-white/6 border-slate-100/16 text-slate-100"
+                    : rank === 3
+                      ? "from-orange-200/24 via-rose-100/10 to-white/6 border-orange-200/18 text-orange-100"
+                      : "from-white/10 via-white/4 to-white/[0.02] border-white/8 text-white/74";
+
+              const rankLabel = rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : `${rank}`;
+
+              return (
+                <button
+                  key={entry.id}
+                  onClick={() => focusIsland(entry.id)}
+                  className={`flex min-w-0 items-center gap-2.5 rounded-[1.15rem] border bg-gradient-to-r px-2.5 py-2.5 text-left text-xs transition-all ${
+                    selectedIslandId === entry.id
+                      ? "border-cyan-200/24 from-cyan-300/20 via-indigo-300/12 to-white/6 text-cyan-50 shadow-[0_14px_24px_rgba(66,120,255,0.18)]"
+                      : `${rankTone} hover:-translate-y-[1px] hover:border-white/16`
+                  }`}
+                >
+                  <div
+                    className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border bg-black/16 text-sm font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] ${
+                      rank === 1
+                        ? "border-amber-200/30 text-amber-100"
+                        : rank === 2
+                          ? "border-slate-100/20 text-slate-100"
+                          : rank === 3
+                            ? "border-orange-200/24 text-orange-100"
+                            : "border-white/10 text-white/68"
+                    }`}
+                  >
+                    {rankLabel}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate font-semibold text-[12px]">{entry.label}</div>
+                    <div className="mt-1 text-[9px] uppercase tracking-[0.14em] text-white/34">
+                      {entry.data.totalApiCalls.toLocaleString()} calls
+                    </div>
+                  </div>
+                </button>
+              );
+            })()
           ))}
-        </div>
-      )}
-
-      {!balloonMode && (
-        <div className="absolute left-4 bottom-4 z-40 flex flex-col gap-3">
-          <div className="flex gap-1 rounded-lg border border-white/10 bg-[#12121a]/80 p-1 backdrop-blur-md">
-            {tabs.map((tab) => (
-              <button
-                key={tab.key}
-                onClick={() => setActiveTab(tab.key)}
-                className={`rounded-md px-3 py-1.5 text-xs font-medium transition-all ${
-                  activeTab === tab.key
-                    ? "bg-indigo-500/20 text-indigo-300"
-                    : "text-white/30 hover:text-white/60"
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-
-          {activeTab === "simulator" && <SimulatorPanel onDataChange={handleSimulatorChange} />}
-          {activeTab === "connect" && (
-            <div className="flex w-80 flex-col gap-3 rounded-xl border border-white/10 bg-[#12121a]/90 p-4 backdrop-blur-md">
-              <h3 className="text-xs font-semibold uppercase tracking-widest text-white/50">
-                Connect AWS Account
-              </h3>
-              <AccountInput
-                onSubmit={(roleArn) => {
-                  setLastRoleArn(roleArn);
-                  fetchIsland(roleArn);
-                }}
-                loading={loading}
-              />
-              <div className="mt-2 rounded-md border border-white/5 bg-white/[0.02] px-3 py-2">
-                <p className="text-[11px] text-white/20">
-                  Create a CelestaReadOnly role with Terraform, then paste the Role ARN here.
-                </p>
-              </div>
-            </div>
-          )}
         </div>
       )}
 
@@ -620,7 +599,7 @@ export default function Home() {
               CLOUD ORBIT
             </h1>
             <p className="mt-2 text-sm text-white/30">AWS Infrastructure Orbital Visualizer</p>
-            <p className="mt-4 text-xs text-white/15">Use the panel on the left to get started</p>
+            <p className="mt-4 text-xs text-white/15">Select a planet or enter explorer mode to begin</p>
           </div>
         </div>
       )}

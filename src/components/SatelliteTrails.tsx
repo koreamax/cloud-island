@@ -70,6 +70,45 @@ const cometFragmentShader = /* glsl */ `
   }
 `;
 
+function OrbitGuide({
+  radius,
+  inclination,
+  ascendingNode,
+  color,
+  opacity,
+}: {
+  radius: number;
+  inclination: number;
+  ascendingNode: number;
+  color: string;
+  opacity: number;
+}) {
+  const geometry = useMemo(() => {
+    const points: THREE.Vector3[] = [];
+    const segments = 220;
+    for (let index = 0; index <= segments; index++) {
+      const angle = (index / segments) * Math.PI * 2;
+      const [x, y, z] = tiltedOrbitPosition(angle, radius, inclination, ascendingNode);
+      points.push(new THREE.Vector3(x, y, z));
+    }
+    return new THREE.BufferGeometry().setFromPoints(points);
+  }, [ascendingNode, inclination, radius]);
+
+  return (
+    <line>
+      <primitive attach="geometry" object={geometry} />
+      <lineBasicMaterial
+        color={color}
+        transparent
+        opacity={opacity}
+        blending={THREE.AdditiveBlending}
+        depthWrite={false}
+        toneMapped={false}
+      />
+    </line>
+  );
+}
+
 export default function SatelliteTrails({ rings }: SatelliteTrailsProps) {
   const pointsRef = useRef<THREE.Points>(null);
 
@@ -154,19 +193,47 @@ export default function SatelliteTrails({ rings }: SatelliteTrailsProps) {
   if (particleCount === 0) return null;
 
   return (
-    <points ref={pointsRef} material={material}>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          args={[positions, 3]}
-          usage={THREE.DynamicDrawUsage}
-        />
-        <bufferAttribute attach="attributes-aColor" args={[colors, 3]} />
-        <bufferAttribute
-          attach="attributes-aTrailIndex"
-          args={[trailIndices, 1]}
-        />
-      </bufferGeometry>
-    </points>
+    <group>
+      {rings.map((ring) => (
+        <group key={`orbit-guide-${ring.categoryId}`}>
+          <OrbitGuide
+            radius={ring.orbitRadius}
+            inclination={ring.inclination}
+            ascendingNode={ring.ascendingNode}
+            color={ring.color}
+            opacity={0.18}
+          />
+          <OrbitGuide
+            radius={ring.orbitRadius + 0.6}
+            inclination={ring.inclination}
+            ascendingNode={ring.ascendingNode}
+            color={ring.color}
+            opacity={0.08}
+          />
+          <OrbitGuide
+            radius={ring.orbitRadius - 0.6}
+            inclination={ring.inclination}
+            ascendingNode={ring.ascendingNode}
+            color="#ffffff"
+            opacity={0.04}
+          />
+        </group>
+      ))}
+
+      <points ref={pointsRef} material={material}>
+        <bufferGeometry>
+          <bufferAttribute
+            attach="attributes-position"
+            args={[positions, 3]}
+            usage={THREE.DynamicDrawUsage}
+          />
+          <bufferAttribute attach="attributes-aColor" args={[colors, 3]} />
+          <bufferAttribute
+            attach="attributes-aTrailIndex"
+            args={[trailIndices, 1]}
+          />
+        </bufferGeometry>
+      </points>
+    </group>
   );
 }

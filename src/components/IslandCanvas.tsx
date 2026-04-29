@@ -909,41 +909,180 @@ function FixedBackdropWhiteHole() {
 function Balloon({ balloonRef }: { balloonRef: React.RefObject<THREE.Group | null> }) {
   return (
     <group ref={balloonRef}>
-      <mesh position={[0, 0.82, 0]} scale={[1.8, 0.44, 1.8]}>
-        <sphereGeometry args={[1.92, 32, 32]} />
-        <meshStandardMaterial color="#ff4d4d" roughness={0.16} metalness={0.86} />
+      <mesh position={[0, 0.98, 0]} scale={[2.08, 0.36, 2.08]}>
+        <sphereGeometry args={[1.96, 52, 52]} />
+        <meshStandardMaterial
+          color="#f4d0ea"
+          emissive="#43112f"
+          emissiveIntensity={0.18}
+          roughness={0.12}
+          metalness={0.98}
+        />
       </mesh>
-      <mesh position={[0, 1.54, 0.08]} scale={[1.08, 0.34, 1.08]}>
-        <sphereGeometry args={[1.36, 24, 24]} />
-        <meshStandardMaterial color="#1f1f1f" metalness={0.65} roughness={0.08} transparent opacity={0.52} />
+      <mesh position={[0, 0.74, 0]} scale={[2.26, 0.28, 2.26]}>
+        <sphereGeometry args={[1.94, 52, 52]} />
+        <meshStandardMaterial
+          color="#8f295f"
+          emissive="#2e0b20"
+          emissiveIntensity={0.32}
+          roughness={0.16}
+          metalness={0.94}
+        />
       </mesh>
-      <group position={[0, 1.62, 0.34]} scale={1.06}>
-        <mesh position={[0, 0.44, 0]} scale={[1.0, 1.1, 0.86]}>
-          <sphereGeometry args={[0.72, 18, 18]} />
-          <meshStandardMaterial color="#69f02d" roughness={0.5} metalness={0.04} />
+      <mesh position={[0, 0.72, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[2.2, 0.17, 18, 120]} />
+        <meshStandardMaterial
+          color="#f8d78e"
+          emissive="#ffae52"
+          emissiveIntensity={1.2}
+          roughness={0.12}
+          metalness={0.76}
+        />
+      </mesh>
+      <mesh position={[0, 0.5, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[2.42, 0.06, 12, 120]} />
+        <meshBasicMaterial
+          color="#7df2ff"
+          transparent
+          opacity={0.72}
+          blending={THREE.AdditiveBlending}
+          toneMapped={false}
+        />
+      </mesh>
+      <mesh position={[0, 1.64, 0.06]} scale={[1.18, 0.38, 1.18]}>
+        <sphereGeometry args={[1.34, 36, 36]} />
+        <meshPhysicalMaterial
+          color="#b6f7ff"
+          metalness={0.12}
+          roughness={0.02}
+          transmission={0.62}
+          transparent
+          opacity={0.84}
+          clearcoat={1}
+          clearcoatRoughness={0.03}
+          thickness={0.7}
+          ior={1.22}
+        />
+      </mesh>
+      <mesh position={[0, 1.88, -0.24]} scale={[0.74, 0.08, 0.74]}>
+        <sphereGeometry args={[1.28, 24, 24]} />
+        <meshBasicMaterial
+          color="#ffffff"
+          transparent
+          opacity={0.22}
+          blending={THREE.AdditiveBlending}
+          toneMapped={false}
+        />
+      </mesh>
+      <group position={[0, 1.66, 0.34]} scale={1.04}>
+        <mesh position={[0, 0.44, 0]} scale={[0.96, 1.08, 0.82]}>
+          <sphereGeometry args={[0.7, 20, 20]} />
+          <meshStandardMaterial
+            color="#a7ff73"
+            emissive="#89ff6c"
+            emissiveIntensity={0.54}
+            roughness={0.32}
+            metalness={0.08}
+          />
         </mesh>
         <mesh position={[-0.22, 0.5, 0.46]} rotation={[0.2, -0.35, 0]}>
           <sphereGeometry args={[0.2, 12, 12]} />
-          <meshStandardMaterial color="#24153a" emissive="#24153a" emissiveIntensity={0.28} />
+          <meshStandardMaterial color="#120a1d" emissive="#1d0f2f" emissiveIntensity={0.4} />
         </mesh>
         <mesh position={[0.22, 0.5, 0.46]} rotation={[0.2, 0.35, 0]}>
           <sphereGeometry args={[0.2, 12, 12]} />
-          <meshStandardMaterial color="#24153a" emissive="#24153a" emissiveIntensity={0.28} />
+          <meshStandardMaterial color="#120a1d" emissive="#1d0f2f" emissiveIntensity={0.4} />
         </mesh>
         <mesh position={[0, -0.22, 0]} scale={[0.9, 0.82, 0.55]}>
           <capsuleGeometry args={[0.3, 0.72, 8, 12]} />
-          <meshStandardMaterial color="#2563eb" roughness={0.62} metalness={0.08} />
+          <meshStandardMaterial
+            color="#5bb8ff"
+            emissive="#1f4ca6"
+            emissiveIntensity={0.28}
+            roughness={0.4}
+            metalness={0.16}
+          />
         </mesh>
         <mesh position={[-0.18, -0.9, 0]} rotation={[0, 0, 0.08]}>
           <capsuleGeometry args={[0.06, 0.32, 4, 8]} />
-          <meshStandardMaterial color="#69f02d" roughness={0.45} metalness={0.04} />
+          <meshStandardMaterial color="#a7ff73" roughness={0.3} metalness={0.04} />
         </mesh>
         <mesh position={[0.18, -0.9, 0]} rotation={[0, 0, -0.08]}>
           <capsuleGeometry args={[0.06, 0.32, 4, 8]} />
-          <meshStandardMaterial color="#69f02d" roughness={0.45} metalness={0.04} />
+          <meshStandardMaterial color="#a7ff73" roughness={0.3} metalness={0.04} />
         </mesh>
       </group>
-      <pointLight color="#ff6b6b" intensity={0.9} distance={16} />
+      {Array.from({ length: 10 }).map((_, index) => {
+        const angle = (index / 10) * Math.PI * 2;
+        return (
+          <mesh
+            key={index}
+            position={[Math.cos(angle) * 1.96, 0.56, Math.sin(angle) * 1.96]}
+            rotation={[0, -angle, 0]}
+          >
+            <boxGeometry args={[0.16, 0.08, 0.34]} />
+            <meshStandardMaterial
+              color="#f5d28d"
+              emissive="#ffb55a"
+              emissiveIntensity={0.58}
+              roughness={0.18}
+              metalness={0.72}
+            />
+          </mesh>
+        );
+      })}
+      {Array.from({ length: 4 }).map((_, index) => {
+        const angle = (index / 4) * Math.PI * 2 + Math.PI / 4;
+        return (
+          <mesh
+            key={`fin-${index}`}
+            position={[Math.cos(angle) * 1.56, 0.82, Math.sin(angle) * 1.56]}
+            rotation={[0.22, -angle, 0.08]}
+          >
+            <boxGeometry args={[0.18, 0.58, 0.8]} />
+            <meshStandardMaterial
+              color="#c9ddff"
+              emissive="#324a8e"
+              emissiveIntensity={0.16}
+              roughness={0.2}
+              metalness={0.88}
+            />
+          </mesh>
+        );
+      })}
+      <mesh position={[0, 0.04, 0]} scale={[1.16, 0.19, 1.16]}>
+        <sphereGeometry args={[2.16, 28, 28]} />
+        <meshBasicMaterial
+          color="#8ceeff"
+          transparent
+          opacity={0.22}
+          blending={THREE.AdditiveBlending}
+          toneMapped={false}
+        />
+      </mesh>
+      <mesh position={[0, -0.28, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <coneGeometry args={[0.74, 1.58, 32]} />
+        <meshBasicMaterial
+          color="#7ee6ff"
+          transparent
+          opacity={0.28}
+          blending={THREE.AdditiveBlending}
+          toneMapped={false}
+        />
+      </mesh>
+      <mesh position={[0, -0.62, 0]} scale={[0.78, 0.08, 0.78]}>
+        <sphereGeometry args={[1.16, 18, 18]} />
+        <meshBasicMaterial
+          color="#d7fbff"
+          transparent
+          opacity={0.42}
+          blending={THREE.AdditiveBlending}
+          toneMapped={false}
+        />
+      </mesh>
+      <pointLight color="#ff89c0" intensity={1.4} distance={22} position={[0, 1.24, 0.4]} />
+      <pointLight color="#72e7ff" intensity={1.8} distance={24} position={[0, 0.26, 0]} />
+      <pointLight color="#ffd58a" intensity={1.1} distance={18} position={[0, 0.86, 0]} />
     </group>
   );
 }
@@ -1216,25 +1355,106 @@ function BattleProjectileBolt({
 }: {
   projectile: BattleProjectile;
 }) {
-  const ref = useRef<THREE.Mesh | null>(null);
+  const ref = useRef<THREE.Group | null>(null);
+  const direction = useMemo(
+    () => projectile.end.clone().sub(projectile.start).normalize(),
+    [projectile.end, projectile.start]
+  );
+  const orientation = useMemo(
+    () =>
+      new THREE.Quaternion().setFromUnitVectors(
+        new THREE.Vector3(0, 0, 1),
+        direction
+      ),
+    [direction]
+  );
+  const missileColor = projectile.team === "player" ? "#ffd166" : "#ff7aa8";
+  const glowColor = projectile.team === "player" ? "#fff1b8" : "#ffc1d6";
 
   useFrame(({ clock }) => {
     if (!ref.current) return;
     const elapsed = clock.elapsedTime - projectile.spawnAt;
     const t = THREE.MathUtils.clamp(elapsed / projectile.duration, 0, 1);
     ref.current.position.lerpVectors(projectile.start, projectile.end, t);
-    const scale = 0.55 + Math.sin(t * Math.PI) * 1.4;
+    ref.current.quaternion.copy(orientation);
+    const scale = 0.88 + Math.sin(t * Math.PI) * 0.18;
     ref.current.scale.setScalar(scale);
   });
 
   return (
-    <mesh ref={ref} position={projectile.start.toArray() as [number, number, number]}>
-      <sphereGeometry args={[0.85, 12, 12]} />
-      <meshBasicMaterial
-        color={projectile.team === "player" ? "#f9d66d" : "#ff6b9f"}
-        toneMapped={false}
+    <group
+      ref={ref}
+      position={projectile.start.toArray() as [number, number, number]}
+      quaternion={orientation}
+    >
+      <mesh position={[0, 0, 0.7]} rotation={[Math.PI / 2, 0, 0]}>
+        <coneGeometry args={[0.24, 0.62, 18]} />
+        <meshStandardMaterial
+          color="#f8fafc"
+          emissive={glowColor}
+          emissiveIntensity={0.18}
+          roughness={0.18}
+          metalness={0.36}
+        />
+      </mesh>
+      <mesh>
+        <cylinderGeometry args={[0.19, 0.24, 1.1, 18]} />
+        <meshStandardMaterial
+          color={missileColor}
+          emissive={missileColor}
+          emissiveIntensity={0.22}
+          roughness={0.22}
+          metalness={0.58}
+        />
+      </mesh>
+      <mesh position={[0, 0, -0.72]} rotation={[-Math.PI / 2, 0, 0]}>
+        <coneGeometry args={[0.18, 0.74, 18]} />
+        <meshBasicMaterial
+          color={glowColor}
+          transparent
+          opacity={0.88}
+          blending={THREE.AdditiveBlending}
+          toneMapped={false}
+        />
+      </mesh>
+      {[
+        [0, 0.18, -0.34],
+        [0, -0.18, -0.34],
+        [0.18, 0, -0.34],
+        [-0.18, 0, -0.34],
+      ].map((position, index) => (
+        <mesh
+          key={index}
+          position={position as [number, number, number]}
+          rotation={[0, 0, index < 2 ? 0 : Math.PI / 2]}
+        >
+          <boxGeometry args={[0.04, 0.24, 0.32]} />
+          <meshStandardMaterial
+            color="#dbe4ff"
+            emissive="#ffffff"
+            emissiveIntensity={0.08}
+            roughness={0.2}
+            metalness={0.62}
+          />
+        </mesh>
+      ))}
+      <mesh position={[0, 0, -1.18]} rotation={[-Math.PI / 2, 0, 0]}>
+        <coneGeometry args={[0.42, 1.8, 18]} />
+        <meshBasicMaterial
+          color={projectile.team === "player" ? "#ff9f43" : "#ff4f8d"}
+          transparent
+          opacity={0.32}
+          blending={THREE.AdditiveBlending}
+          toneMapped={false}
+        />
+      </mesh>
+      <pointLight
+        color={projectile.team === "player" ? "#ffd166" : "#ff7aa8"}
+        intensity={1.1}
+        distance={7}
+        position={[0, 0, -0.8]}
       />
-    </mesh>
+    </group>
   );
 }
 

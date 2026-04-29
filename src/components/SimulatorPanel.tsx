@@ -67,20 +67,50 @@ export default function SimulatorPanel({ onDataChange }: SimulatorPanelProps) {
   }, [sliders, errorRate, onDataChange]);
 
   return (
-    <div className="flex w-80 flex-col gap-3 rounded-xl border border-white/10 bg-[#12121a]/90 p-4 backdrop-blur-md">
-      <h3 className="text-xs font-semibold uppercase tracking-widest text-white/50">
-        Simulator
+    <div className="panel-premium flex w-80 flex-col gap-4 rounded-[1.6rem] p-4 text-white">
+      <div>
+        <div className="text-[10px] uppercase tracking-[0.34em] text-cyan-100/38">
+          Command Deck
+        </div>
+        <h3 className="mt-2 text-sm font-semibold uppercase tracking-[0.18em] text-white/72">
+          Simulator
+        </h3>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div className="stat-card-premium rounded-2xl px-3 py-3">
+          <div className="text-[10px] uppercase tracking-[0.22em] text-white/35">
+            Total Calls
+          </div>
+          <div className="mt-2 text-lg font-semibold text-white">
+            {Object.values(sliders)
+              .reduce((sum, value) => sum + value, 0)
+              .toLocaleString()}
+          </div>
+        </div>
+        <div className="stat-card-premium rounded-2xl px-3 py-3">
+          <div className="text-[10px] uppercase tracking-[0.22em] text-white/35">
+            Error Rate
+          </div>
+          <div className="mt-2 text-lg font-semibold text-rose-200">
+            {errorRate}%
+          </div>
+        </div>
+      </div>
+
+      <h3 className="text-xs font-semibold uppercase tracking-[0.22em] text-white/44">
+        Sector Controls
       </h3>
 
       {AWS_CATEGORIES.map((cat) => (
-        <div key={cat.id} className="flex flex-col gap-1">
-          <div className="flex items-center gap-2">
+        <div key={cat.id} className="panel-section rounded-2xl px-3 py-3">
+          <div className="mb-3 flex items-center gap-2">
             <span
-              className="inline-block h-2.5 w-2.5 rounded-full"
-              style={{ backgroundColor: cat.color }}
+              className="inline-block h-2.5 w-2.5 rounded-full shadow-[0_0_12px_currentColor]"
+              style={{ backgroundColor: cat.color, color: cat.color }}
             />
-            <span className="text-xs text-white/60">{cat.label}</span>
-            <span className="ml-auto font-mono text-[10px] text-white/30">
+            <span className="text-xs font-medium text-white/74">{cat.label}</span>
+            <span className="ml-auto rounded-full border border-white/8 bg-white/[0.04] px-2 py-0.5 font-mono text-[10px] text-white/38">
               {(sliders[cat.id] ?? 0).toLocaleString()}
             </span>
           </div>
@@ -91,15 +121,17 @@ export default function SimulatorPanel({ onDataChange }: SimulatorPanelProps) {
             step={100}
             value={sliders[cat.id] ?? 0}
             onChange={(e) => handleSliderChange(cat.id, Number(e.target.value))}
-            className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-white/10 accent-indigo-500"
+            className="range-premium w-full cursor-pointer"
           />
         </div>
       ))}
 
-      <div className="mt-2 border-t border-white/5 pt-3">
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-red-400/60">Error Rate</span>
-          <span className="ml-auto font-mono text-[10px] text-white/30">
+      <div className="panel-section mt-1 rounded-2xl px-3 py-3">
+        <div className="mb-3 flex items-center gap-2">
+          <span className="text-xs font-medium uppercase tracking-[0.2em] text-rose-200/68">
+            Error Rate
+          </span>
+          <span className="ml-auto rounded-full border border-white/8 bg-white/[0.04] px-2 py-0.5 font-mono text-[10px] text-white/38">
             {errorRate}%
           </span>
         </div>
@@ -110,7 +142,7 @@ export default function SimulatorPanel({ onDataChange }: SimulatorPanelProps) {
           step={0.5}
           value={errorRate}
           onChange={(e) => setErrorRate(Number(e.target.value))}
-          className="mt-1 h-1.5 w-full cursor-pointer appearance-none rounded-full bg-white/10 accent-red-500"
+          className="range-premium w-full cursor-pointer"
         />
       </div>
     </div>

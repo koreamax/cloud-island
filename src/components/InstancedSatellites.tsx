@@ -60,7 +60,7 @@ export default memo(function InstancedSatellites({
   }, [rings]);
 
   const count = satellites.length;
-  const geo = useMemo(() => new THREE.SphereGeometry(0.5, 12, 12), []);
+  const geo = useMemo(() => new THREE.IcosahedronGeometry(0.5, 1), []);
 
   // Set up instance colors (re-run when active category changes)
   useEffect(() => {
@@ -178,9 +178,9 @@ export default memo(function InstancedSatellites({
       <meshStandardMaterial
         vertexColors
         emissive="#ffffff"
-        emissiveIntensity={0.4}
-        roughness={0.3}
-        metalness={0.2}
+        emissiveIntensity={0.62}
+        roughness={0.18}
+        metalness={0.55}
       />
     </instancedMesh>
   );

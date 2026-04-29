@@ -109,7 +109,7 @@ export default function LoadingScreen({
       {isError && (
         <button
           onClick={onRetry}
-          className="mt-6 rounded-lg bg-indigo-600 px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500"
+          className="btn-premium mt-6 rounded-xl px-6 py-2.5 text-sm font-semibold text-white"
         >
           Retry
         </button>

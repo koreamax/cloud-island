@@ -22,37 +22,35 @@ export default function CategoryDetailPanel({
       : "0.0";
 
   return (
-    <div className="absolute right-4 top-[34rem] z-50 w-80 rounded-xl border border-white/10 bg-[#12121a]/95 p-5 text-white shadow-2xl backdrop-blur-md">
-      {/* Header */}
+    <div className="panel-premium absolute right-4 top-[34rem] z-50 w-80 rounded-[1.7rem] p-5 text-white">
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div
-            className="h-3 w-3 rounded-full"
-            style={{ backgroundColor: category.color }}
+            className="h-3 w-3 rounded-full shadow-[0_0_14px_currentColor]"
+            style={{ backgroundColor: category.color, color: category.color }}
           />
-          <h3 className="text-lg font-semibold" style={{ color: category.color }}>
+          <h3 className="text-lg font-semibold text-white" style={{ textShadow: `0 0 18px ${category.color}33` }}>
             {category.label}
           </h3>
         </div>
         <button
           onClick={onClose}
-          className="rounded-lg p-1 transition-colors hover:bg-white/10"
+          className="btn-glass rounded-full p-2 transition-colors"
         >
           <X size={18} className="text-white/60" />
         </button>
       </div>
 
-      {/* Stats */}
       <div className="mb-4 grid grid-cols-3 gap-3">
-        <div className="rounded-lg bg-white/5 p-2 text-center">
+        <div className="stat-card-premium rounded-2xl p-3 text-center">
           <div className="text-lg font-bold">
             {activity.apiCallCount.toLocaleString()}
           </div>
-          <div className="text-[10px] uppercase tracking-wider text-white/50">
+          <div className="mt-1 text-[10px] uppercase tracking-[0.22em] text-white/44">
             API Calls
           </div>
         </div>
-        <div className="rounded-lg bg-white/5 p-2 text-center">
+        <div className="stat-card-premium rounded-2xl p-3 text-center">
           <div
             className="text-lg font-bold"
             style={{
@@ -62,11 +60,11 @@ export default function CategoryDetailPanel({
           >
             {activity.errorCount.toLocaleString()}
           </div>
-          <div className="text-[10px] uppercase tracking-wider text-white/50">
+          <div className="mt-1 text-[10px] uppercase tracking-[0.22em] text-white/44">
             Errors
           </div>
         </div>
-        <div className="rounded-lg bg-white/5 p-2 text-center">
+        <div className="stat-card-premium rounded-2xl p-3 text-center">
           <div
             className="text-lg font-bold"
             style={{
@@ -76,15 +74,14 @@ export default function CategoryDetailPanel({
           >
             {errorRate}%
           </div>
-          <div className="text-[10px] uppercase tracking-wider text-white/50">
+          <div className="mt-1 text-[10px] uppercase tracking-[0.22em] text-white/44">
             Error Rate
           </div>
         </div>
       </div>
 
-      {/* Top Services */}
-      <div className="mb-4">
-        <h4 className="mb-2 text-xs font-medium uppercase tracking-wider text-white/40">
+      <div className="panel-section mb-4 rounded-2xl px-3 py-3">
+        <h4 className="mb-3 text-xs font-medium uppercase tracking-[0.22em] text-white/40">
           Top Services
         </h4>
         <div className="space-y-1.5">
@@ -94,33 +91,33 @@ export default function CategoryDetailPanel({
                 ? (svc.count / activity.apiCallCount) * 100
                 : 0;
             return (
-              <div key={svc.service} className="flex items-center gap-2">
-                <div className="flex-1 text-xs text-white/70">
-                  {svc.service.replace(".amazonaws.com", "")}
-                </div>
-                <div className="w-20">
-                  <div className="h-1.5 rounded-full bg-white/10">
-                    <div
-                      className="h-full rounded-full"
-                      style={{
-                        width: `${pct}%`,
-                        backgroundColor: category.color,
-                      }}
-                    />
+                <div key={svc.service} className="flex items-center gap-2">
+                  <div className="flex-1 text-xs text-white/70">
+                    {svc.service.replace(".amazonaws.com", "")}
+                  </div>
+                  <div className="w-20">
+                    <div className="h-1.5 rounded-full bg-white/10">
+                      <div
+                        className="h-full rounded-full"
+                        style={{
+                          width: `${pct}%`,
+                          backgroundColor: category.color,
+                          boxShadow: `0 0 14px ${category.color}66`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <div className="w-12 text-right text-[10px] text-white/50">
+                    {svc.count.toLocaleString()}
                   </div>
                 </div>
-                <div className="w-12 text-right text-[10px] text-white/50">
-                  {svc.count.toLocaleString()}
-                </div>
-              </div>
             );
           })}
         </div>
       </div>
 
-      {/* Principals */}
-      <div>
-        <h4 className="mb-2 text-xs font-medium uppercase tracking-wider text-white/40">
+      <div className="panel-section rounded-2xl px-3 py-3">
+        <h4 className="mb-3 text-xs font-medium uppercase tracking-[0.22em] text-white/40">
           IAM Principals
         </h4>
         <div className="space-y-1.5">
@@ -130,11 +127,14 @@ export default function CategoryDetailPanel({
                 ? (p.count / activity.apiCallCount) * 100
                 : 0;
             return (
-              <div key={p.principal} className="flex items-center gap-2">
+              <div
+                key={p.principal}
+                className="rounded-xl border border-white/6 bg-black/10 px-3 py-2"
+              >
                 <div className="flex-1 truncate text-xs text-white/70">
                   {p.principal}
                 </div>
-                <div className="text-[10px] text-white/40">
+                <div className="mt-1 text-[10px] text-white/40">
                   {pct.toFixed(1)}%
                 </div>
               </div>

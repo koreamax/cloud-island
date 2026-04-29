@@ -19,6 +19,147 @@ body {
   overflow: hidden;
 }
 
+.btn-premium {
+  border: 1px solid rgba(167, 192, 255, 0.28);
+  background:
+    linear-gradient(135deg, rgba(109, 128, 255, 0.95), rgba(66, 204, 255, 0.9)),
+    rgba(54, 76, 193, 0.92);
+  box-shadow:
+    0 18px 36px rgba(38, 62, 175, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    filter 180ms ease,
+    opacity 180ms ease;
+}
+
+.btn-premium:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+  box-shadow:
+    0 22px 42px rgba(38, 62, 175, 0.42),
+    0 0 24px rgba(80, 203, 255, 0.18);
+}
+
+.btn-premium:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-glass {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03)),
+    rgba(14, 18, 34, 0.82);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 12px 26px rgba(0, 0, 0, 0.24);
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease;
+}
+
+.btn-glass:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.22);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.04)),
+    rgba(20, 25, 46, 0.9);
+}
+
+.btn-tab-active {
+  background:
+    linear-gradient(135deg, rgba(99, 116, 255, 0.3), rgba(59, 207, 255, 0.2)),
+    rgba(255, 255, 255, 0.08);
+  color: #dce8ff;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 10px 20px rgba(0, 0, 0, 0.18);
+}
+
+.panel-premium {
+  border: 1px solid rgba(165, 189, 255, 0.16);
+  background:
+    radial-gradient(circle at top left, rgba(90, 112, 255, 0.18), transparent 32%),
+    radial-gradient(circle at top right, rgba(68, 214, 255, 0.12), transparent 30%),
+    linear-gradient(180deg, rgba(20, 26, 49, 0.94), rgba(10, 13, 28, 0.92));
+  box-shadow:
+    0 30px 60px rgba(2, 6, 20, 0.5),
+    0 12px 28px rgba(43, 76, 180, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+}
+
+.panel-section {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02)),
+    rgba(11, 14, 28, 0.84);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 16px 30px rgba(0, 0, 0, 0.24);
+}
+
+.stat-card-premium {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    radial-gradient(circle at top left, rgba(115, 131, 255, 0.16), transparent 45%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02)),
+    rgba(10, 14, 30, 0.88);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 18px 32px rgba(0, 0, 0, 0.22);
+}
+
+.range-premium {
+  appearance: none;
+  height: 0.45rem;
+  border-radius: 9999px;
+  background:
+    linear-gradient(90deg, rgba(102, 116, 255, 0.4), rgba(55, 212, 255, 0.24)),
+    rgba(255, 255, 255, 0.08);
+  box-shadow:
+    inset 0 1px 2px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+.range-premium::-webkit-slider-thumb {
+  appearance: none;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.36);
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.95), rgba(194, 227, 255, 0.72) 48%, rgba(82, 140, 255, 0.95));
+  box-shadow:
+    0 0 0 4px rgba(99, 122, 255, 0.14),
+    0 10px 18px rgba(52, 93, 220, 0.34);
+  cursor: pointer;
+}
+
+.range-premium::-moz-range-track {
+  height: 0.45rem;
+  border-radius: 9999px;
+  background:
+    linear-gradient(90deg, rgba(102, 116, 255, 0.4), rgba(55, 212, 255, 0.24)),
+    rgba(255, 255, 255, 0.08);
+}
+
+.range-premium::-moz-range-thumb {
+  width: 1rem;
+  height: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.36);
+  border-radius: 9999px;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.95), rgba(194, 227, 255, 0.72) 48%, rgba(82, 140, 255, 0.95));
+  box-shadow:
+    0 0 0 4px rgba(99, 122, 255, 0.14),
+    0 10px 18px rgba(52, 93, 220, 0.34);
+  cursor: pointer;
+}
+
 /* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 4px;
