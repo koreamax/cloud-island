@@ -1,6 +1,6 @@
 # 배포 문서
 
-Cloud Island는 S3와 CloudFront를 통해 정적 Next.js 프론트엔드를 제공하고, API Gateway와 Lambda로 CloudTrail 동기화, 저장된 섬 조회, Space Explore 플레이어 상태 동기화를 처리합니다.
+Cloud Island는 S3와 CloudFront를 통해 정적 Next.js 프론트엔드를 제공하고, API Gateway와 Lambda로 CloudTrail 동기화, 저장된 행성 조회, Space Explore 플레이어 상태 동기화를 처리합니다.
 
 배포 URL:
 
@@ -14,7 +14,7 @@ https://d3lxec0zrny29n.cloudfront.net/
 - 런타임 설정: Terraform이 `runtime-config.json`을 생성하고 API Gateway URL을 주입합니다.
 - API: API Gateway HTTP API가 Lambda 함수와 연결됩니다.
 - Lambda: Node.js 20 런타임으로 `backend/lambdas/*`의 컴파일 결과를 실행합니다.
-- 데이터 저장소: DynamoDB가 섬 스냅샷과 활성 플레이어 상태를 저장합니다.
+- 데이터 저장소: DynamoDB가 행성 스냅샷과 활성 플레이어 상태를 저장합니다.
 - AWS 동기화: `sync` Lambda가 `CelestaReadOnly` 역할을 AssumeRole하고 CloudTrail `LookupEvents`를 호출합니다.
 
 ## 빌드
@@ -71,8 +71,8 @@ terraform apply
 | 경로 | Lambda | 역할 |
 | --- | --- | --- |
 | `POST /sync` | `sync` | Role ARN으로 CloudTrail을 동기화하고 최신 스냅샷 저장 |
-| `GET /island?accountId=...` | `island` | 특정 계정의 최신 섬 데이터 조회 |
-| `GET /islands` | `island` | 저장된 최신 섬 목록 조회 |
+| `GET /island?accountId=...` | `island` | 특정 계정의 최신 행성 데이터 조회 |
+| `GET /islands` | `island` | 저장된 최신 행성 목록 조회 |
 | `GET /players` | `island` | 활성 Space Explore 플레이어 목록 조회 |
 | `POST /players` | `island` | 플레이어 위치와 상태 업데이트 |
 
